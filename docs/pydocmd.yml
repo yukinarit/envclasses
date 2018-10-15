@@ -1,0 +1,15 @@
+site_name: envclasses
+
+generate:
+  - envclasses.md:
+    - envclasses++     # (+ to include members)
+
+pages:
+- Home: index.md << ../README.md
+- envclasses: envclasses.md
+
+theme:    readthedocs
+
+additional_search_paths:
+  - ..
+  - .
