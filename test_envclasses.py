@@ -125,3 +125,16 @@ def test_envclass_inner():
     assert h.s == 'hogehoge'
     assert h.fuga.i == 200
     assert h.fuga.s == 'fugafuga'
+
+
+def test_set_prefix_decorator():
+    @envclass
+    @dataclass
+    class Hoge:
+        i: int
+
+    h = Hoge(i=10)
+    assert h.i == 10
+    os.environ['HOGE_I'] = '20'
+    load_env(h, prefix='hoge')
+    assert h.i == 20

@@ -22,6 +22,8 @@ DICT_BRACKET = '{}'
 
 LIST_QUOTES = ('\'', '\"')
 
+PREFIX = 'env'
+
 
 class EnvclassError(Exception):
     def __init__(self, *args, **kwargs) -> None:
@@ -33,7 +35,7 @@ class ConvError(EnvclassError):
         super().__init__(*args, **kwargs)
 
 
-def envclass(_cls=None, prefix: str='env') -> type:
+def envclass(_cls: type) -> type:
     """
     @envclass decorator: Decorate class as envclass.
     """
@@ -42,11 +44,9 @@ def envclass(_cls=None, prefix: str='env') -> type:
             """
             Load attributes from environmental variables.
             """
-            nonlocal prefix
             for f in fields(cls):
-                # Prioritize prefix from load_env function than
-                # the one from envclass decorator.
-                prefix = _prefix or prefix
+                # If no prefix specified, use the default PREFIX.
+                prefix = _prefix or PREFIX
                 logger.debug(f'prefix={prefix}, type={f.type}')
 
                 if is_envclass(f.type):
