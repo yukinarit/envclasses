@@ -2,8 +2,9 @@ import enum
 import os
 from typing import List, Tuple
 
-from dataclasses import dataclass, field
-from envclasses import envclass, load_env
+from dataclasses import dataclass, field, fields
+from envclasses import (envclass, load_env, is_enum,
+                        InvalidNumberOfElement)
 
 
 def test_envclass_primitive():
@@ -47,15 +48,15 @@ def test_envclass_enum():
     @dataclass
     class Hoge:
         s: SEnum = SEnum.s1
-        # i: IEnum = IEnum.i1
+        i: IEnum = IEnum.i1
 
     h = Hoge()
     assert h.s == SEnum.s1
     os.environ['ENV_S'] = 'hoge2'
-    # os.environ['ENV_I'] = '2'
+    os.environ['ENV_I'] = '2'
     load_env(h)
     assert h.s == SEnum.s2
-    # assert h.i == IEnum.i2
+    assert h.i == IEnum.i2
 
 
 def test_envclass_list():
@@ -88,13 +89,21 @@ def test_envclass_tuple():
     @envclass
     @dataclass
     class Hoge:
-        tuple_int: Tuple[int] = field(default_factory=tuple)
+        tuple_one: Tuple[str] = ('hoge')
+        tuple_two: Tuple[int, float] = (0, 0.0)
 
-    # h = Hoge()
-    # assert h.tuple_int == []
-    # os.environ['ENV_LST_INT'] = '[1, 2, 3 ]'
-    # load_env(h)
-    # assert h.tuple_int == [1, 2, 3]
+    h = Hoge()
+    os.environ['ENV_TUPLE_ONE'] = '("fuga")'
+    os.environ['ENV_TUPLE_TWO'] = '(1, 2)'
+    load_env(h)
+    assert h.tuple_one == ('fuga',)
+    assert h.tuple_two == (1, 2.0)
+
+    try:
+        os.environ['ENV_TUPLE_TWO'] = '(1)'
+        load_env(h)
+    except InvalidNumberOfElement:
+        assert h.tuple_two == (1, 2.0)
 
 
 def test_envclass_inner():
@@ -127,7 +136,7 @@ def test_envclass_inner():
     assert h.fuga.s == 'fugafuga'
 
 
-def test_set_prefix_decorator():
+def test_load_env_with_prefix():
     @envclass
     @dataclass
     class Hoge:
@@ -138,3 +147,25 @@ def test_set_prefix_decorator():
     os.environ['HOGE_I'] = '20'
     load_env(h, prefix='hoge')
     assert h.i == 20
+
+
+def test_is_enum():
+    class SEnum(enum.Enum):
+        s = 's'
+    assert is_enum(SEnum)
+
+    class IEnum(enum.IntEnum):
+        i = 10
+    assert is_enum(IEnum)
+
+    @dataclass
+    class Hoge:
+        s: SEnum = SEnum.s
+        i: IEnum = IEnum.i
+
+    assert is_enum(IEnum)
+    assert is_enum(SEnum)
+    assert is_enum(fields(Hoge)[0].type)
+    assert is_enum(fields(Hoge)[1].type)
+    assert fields(Hoge)[0].type is SEnum
+    assert fields(Hoge)[1].type is IEnum

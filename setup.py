@@ -36,7 +36,7 @@ tests_require = [
 ]
 
 docs_require = [
-    'pydoc-markdown',
+    'pdoc',
 ]
 
 setup(
