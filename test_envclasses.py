@@ -1,9 +1,9 @@
 import enum
 import os
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 
 from dataclasses import dataclass, field, fields
-from envclasses import (envclass, load_env, is_enum,
+from envclasses import (envclass, load_env, is_enum, is_dict_type,
                         InvalidNumberOfElement)
 
 
@@ -83,6 +83,28 @@ def test_envclass_list():
     assert h.lst_float == [1.2, 2.3, 3.456]
     assert h.lst_str == ["hoge", "fuga", "foo"]
     assert h.lst_bool == [True, False, True, False, True, False, True, False]
+
+
+def test_envclass_dict():
+    @envclass
+    @dataclass
+    class Hoge:
+        dct_int: Dict[int, int] = field(default_factory=dict)
+        dct_str_float: Dict[str, float] = field(default_factory=dict)
+        dct_in_dct: Dict[str, Dict[int, int]] = field(default_factory=dict)
+
+    h = Hoge()
+    assert h.dct_int == {}
+    assert h.dct_str_float == {}
+    assert h.dct_in_dct == {}
+    assert is_dict_type(fields(Hoge)[0].type)
+    os.environ['ENV_DCT_INT'] = '{1: 2}'
+    os.environ['ENV_DCT_STR_FLOAT'] = "{'hoge': 2}"
+    # os.environ['ENV_DCT_IN_DCT'] = "{'hoge': {1, 2}}"
+    load_env(h)
+    assert h.dct_int == {1: 2}
+    assert h.dct_str_float == {'hoge': 2.0}
+    # assert h.dct_in_dct == {'hoge': 2.0}
 
 
 def test_envclass_tuple():
