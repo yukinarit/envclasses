@@ -1,3 +1,5 @@
+.PHONY: all setup test unittest pep8 mypy docs
+
 all: setup test
 
 setup:
@@ -14,3 +16,9 @@ pep8:
 
 mypy:
 	pipenv run mypy envclasses.py
+
+docs:
+	pipenv run pdoc envclasses.py --html --html-dir docs --overwrite
+
+serve-docs:
+	pipenv run pdoc --http --http-dir docs

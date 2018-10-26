@@ -1,16 +1,16 @@
 [[source]]
-url = 'https://pypi.python.org/simple'
+url = "https://pypi.python.org/simple"
 verify_ssl = true
-name = 'pypi'
+name = "pypi"
 
 [requires]
-python_version = '>3.6'
+python_version = ">3.6"
 
 [packages]
 dataclasses = { version = "*", markers="python_version < '3.7'" }
 
 [dev-packages]
-pytest = '*'
-pytest-pycodestyle = '*'
-mypy = '*'
-pycodestyle = {editable = true, git = "https://github.com/PyCQA/pycodestyle.git"}
+pytest = "*"
+pytest-pycodestyle = "*"
+mypy = "*"
+pdoc = "*"
