@@ -78,7 +78,7 @@ def test_envclass_list():
     assert h.lst_bool == []
     os.environ['ENV_LST_INT'] = '[1, 2, 3 ]'
     os.environ['ENV_LST_FLOAT'] = '[ 1.2,  2.3 , 3.456 ]'
-    os.environ['ENV_LST_STR'] = '["hoge", "fuga", "foo"]'
+    os.environ['ENV_LST_STR'] = '[hoge, fuga, foo]'
     os.environ['ENV_LST_BOOL'] = ('[TRUE, FALSE, true, false,'
                                   ' True, False, 1, 0]')
     load_env(h)
@@ -95,19 +95,22 @@ def test_envclass_dict():
         dct_int: Dict[int, int] = field(default_factory=dict)
         dct_str_float: Dict[str, float] = field(default_factory=dict)
         dct_in_dct: Dict[str, Dict[int, int]] = field(default_factory=dict)
+        lst_in_dct: Dict[str, List[int]] = field(default_factory=dict)
 
     h = Hoge()
     assert h.dct_int == {}
     assert h.dct_str_float == {}
     assert h.dct_in_dct == {}
+    assert h.lst_in_dct == {}
     assert is_dict_type(fields(Hoge)[0].type)
     os.environ['ENV_DCT_INT'] = '{1: 2}'
-    os.environ['ENV_DCT_STR_FLOAT'] = "{'hoge': 2}"
-    # os.environ['ENV_DCT_IN_DCT'] = "{'hoge': {1, 2}}"
+    os.environ['ENV_DCT_STR_FLOAT'] = "{hoge: 2}"
+    os.environ['ENV_DCT_IN_DCT'] = "{hoge: {1: 2}}"
+    os.environ['ENV_LST_IN_DCT'] = "{hoge: [1, 2]}"
     load_env(h)
     assert h.dct_int == {1: 2}
     assert h.dct_str_float == {'hoge': 2.0}
-    # assert h.dct_in_dct == {'hoge': 2.0}
+    assert h.lst_in_dct == {'hoge': [1, 2]}
 
 
 def test_envclass_tuple():
@@ -118,14 +121,14 @@ def test_envclass_tuple():
         tuple_two: Tuple[int, float] = (0, 0.0)
 
     h = Hoge()
-    os.environ['ENV_TUPLE_ONE'] = '("fuga")'
-    os.environ['ENV_TUPLE_TWO'] = '(1, 2)'
+    os.environ['ENV_TUPLE_ONE'] = '[fuga]'
+    os.environ['ENV_TUPLE_TWO'] = '[1, 2]'
     load_env(h)
     assert h.tuple_one == ('fuga',)
     assert h.tuple_two == (1, 2.0)
 
     try:
-        os.environ['ENV_TUPLE_TWO'] = '(1)'
+        os.environ['ENV_TUPLE_TWO'] = '[1]'
         load_env(h)
     except InvalidNumberOfElement:
         assert h.tuple_two == (1, 2.0)

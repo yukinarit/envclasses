@@ -9,7 +9,10 @@ import functools
 import os
 import logging
 import enum
-from typing import List, Tuple, Dict, Callable, Any, Optional
+import yaml
+from pathlib import Path
+from typing import List, Tuple, Dict, Callable, Any, Optional, Type, \
+    TypeVar
 from dataclasses import fields, Field
 
 __all__ = [
@@ -23,7 +26,7 @@ __all__ = [
     'load_env',
 ]
 
-__version__ = '0.2.0'
+__version__ = '0.2.1'
 """ Version of envclass. """
 
 logger = logging.getLogger('envclasses')
@@ -31,24 +34,12 @@ logger = logging.getLogger('envclasses')
 ENVCLASS_DUNDER_FUNC_NAME = '__envclasses_load_env__'
 """ Name of the generated dunder function to be called by `load_env`. """
 
-LIST_BRACKET = '[]'
-""" Bracket to denote string as List such as \"[1, 2, 3]\". """
-
-TUPLE_BRACKET = '()'
-""" Bracket to denote string as Tuple such as \"(1, 2, 3)\". """
-
-DICT_BRACKET = '{}'
-""" Bracket to denote string as Dict such as
-\"{1:\\"one\\", 2: \\"two\\"}\". """
-
-DICT_KV_DELIMITER = ':'
-""" A string to separate dict key and value """
-
-LIST_QUOTES = ('\'', '\"')
-""" Allowed quotations. """
-
 ENVCLASS_PREFIX = 'env'
 """ Default prefix used for environment variables. """
+
+T = TypeVar('T')
+
+JsonValue = TypeVar('JsonValue', str, int, float, bool, Dict, List)
 
 
 class EnvclassError(TypeError):
@@ -64,7 +55,10 @@ class LoadEnvError(Exception):
 
 
 class InvalidNumberOfElement(LoadEnvError):
-    pass
+    """
+    Raised if the number of element is imcompatible with
+    the number of elemtn of type.
+    """
 
 
 def envclass(_cls: type) -> type:
@@ -102,7 +96,7 @@ def envclass(_cls: type) -> type:
         os.environ['HOGE_S'] = 'hogehoge'
         os.environ['HOGE_F'] = '0.2'
         os.environ['HOGE_B'] = 'true'
-        os.environ['HOGE_DCT'] = '{\'key\': 100.0}'
+        os.environ['HOGE_DCT'] = '{key: 100.0}'
         os.environ['HOGE_LST'] = '[1, 2, 3]'
 
         # Load values from environment variables.
@@ -130,13 +124,13 @@ def envclass(_cls: type) -> type:
                 elif is_enum(f.type):
                     _load_enum(self, f, prefix)
                 else:
-                    _load_primitive(self, f, prefix)
+                    _load_other(self, f, prefix)
         setattr(cls, ENVCLASS_DUNDER_FUNC_NAME, load_env)
         return cls
     return wrap(_cls)
 
 
-def _load_dataclass(obj, f: Field, prefix: str):
+def _load_dataclass(obj, f: Field, prefix: str) -> None:
     """
     Override exisiting dataclass object by environment variables.
     """
@@ -148,26 +142,24 @@ def _load_dataclass(obj, f: Field, prefix: str):
         pass
 
 
-def _load_list(obj, f: Field, prefix: str):
+def _load_list(obj, f: Field, prefix: str) -> None:
     """
     Override list values by environment variables.
     """
     typ = f.type
-    element_typ = typ.__args__[0]
+    element_type = typ.__args__[0]
     name = f'{prefix.upper()}_{f.name.upper()}'
     try:
         s: str = os.environ[name].strip()
-        if LIST_BRACKET[0] != s[0] or LIST_BRACKET[1] != s[-1]:
-            raise EnvclassError(f'Not a valid list string: {s}')
-        s = s[1:-1]
-        lst = [_to_value(e.strip(), element_typ) for e in s.split(',')]
-        setattr(obj, f.name, lst)
-
     except KeyError:
-        pass
+        return
+
+    yml = yaml.load(s)
+    lst = [element_type(e) for e in yml]
+    setattr(obj, f.name, lst)
 
 
-def _load_tuple(obj, f: Field, prefix: str):
+def _load_tuple(obj, f: Field, prefix: str) -> None:
     """
     Override tuple values by environment variables.
     """
@@ -177,22 +169,18 @@ def _load_tuple(obj, f: Field, prefix: str):
     try:
         s: str = os.environ[name].strip()
     except KeyError:
-        pass
+        return
 
-    if TUPLE_BRACKET[0] != s[0] or TUPLE_BRACKET[1] != s[-1]:
-        raise EnvclassError(f'Not a valid tuple string: {s}')
-    s = s[1:-1]
-    lst = [e.strip() for e in s.split(',')]
+    lst = yaml.load(s)
     if len(lst) != len(element_types):
         raise InvalidNumberOfElement(f'expected={len(element_types)} '
                                      f'actual={len(lst)}')
-    tpl = tuple(_to_value(e, element_typ)
-                for e, element_typ in zip(lst, element_types))
-
+    tpl = tuple(element_type(e)
+                for e, element_type in zip(lst, element_types))
     setattr(obj, f.name, tpl)
 
 
-def _load_dict(obj, f: Field, prefix: str):
+def _load_dict(obj, f: Field, prefix: str) -> None:
     """
     Override dict values by environment variables.
     """
@@ -201,37 +189,20 @@ def _load_dict(obj, f: Field, prefix: str):
     key_type = typ.__args__[0]
     value_type = typ.__args__[1]
     try:
-        s: Optional[str] = os.environ[name].strip()
+        s = os.environ[name].strip()
     except KeyError:
-        s = None
-
-    if not s:
-        logger.debug(f'Environment variable not found: {name}')
         return
 
-    if DICT_BRACKET[0] != s[0] or DICT_BRACKET[1] != s[-1]:
-        raise EnvclassError(f'Not a valid dict string: {s}')
-    s = s[1:-1]
-    dct: Dict[str, str] = {}
-    for e in s.split(','):
-        kv = e.strip().split(DICT_KV_DELIMITER)
-        if len(kv) != 2:
-            pass
-        k = kv[0]
-        v = kv[1]
-        dct[_to_value(k, key_type)] = _to_value(v, value_type)
+    dct = {_to_value(k, key_type): _to_value(v, value_type)
+           for k, v in yaml.load(s).items()}
     setattr(obj, f.name, dct)
 
 
-def _to_value(e: str, typ: type):
-    if typ is str:
-        if e[0] not in LIST_QUOTES or e[-1] not in LIST_QUOTES:
-            raise EnvclassError(f'Not a valid string: {e}')
-        return typ(e[1:-1])
-    if typ is bool:
-        return str_to_bool(e)
+def _to_value(v: JsonValue, typ: Type) -> Any:
+    if isinstance(v, (List, Dict)):
+        return v
     else:
-        return typ(e)
+        return typ(v)
 
 
 def _load_enum(obj, f: Field, prefix: str) -> None:
@@ -240,42 +211,21 @@ def _load_enum(obj, f: Field, prefix: str) -> None:
     for n, nested_type in enum_annotations.items():
         try:
             setattr(obj, f.name, f.type(nested_type(os.environ[name])))
-            break
-
+            return
         except ValueError:
-            pass
+            continue
 
 
-def _load_primitive(obj, f: Field, prefix: str):
+def _load_other(obj, f: Field, prefix: str) -> None:
     """
-    Override primitive values object by environment variables.
+    Override values by environment variables.
     """
     name = f'{prefix.upper()}_{f.name.upper()}'
     try:
-        conv: Callable[[str], Any]
-        if f.type is bool:
-            conv = str_to_bool
-        else:
-            conv = f.type
-        setattr(obj, f.name, conv(os.environ[name]))
-
+        yml = yaml.load(os.environ[name])
+        setattr(obj, f.name, _to_value(yml, f.type))
     except KeyError:
         pass
-
-
-def str_to_bool(s: str) -> bool:
-    """
-    Convert string to boolean.
-    """
-    if not isinstance(s, str):
-        raise LoadEnvError(f'{s} is not string.')
-    s = s.lower()
-    if s in ('true', '1', 'yes'):
-        return True
-    elif s in ('false', '0', 'no'):
-        return False
-    else:
-        raise LoadEnvError(f'\'{s}\' is a valid boolean.')
 
 
 def is_enum(cls: type) -> bool:
@@ -306,14 +256,14 @@ def is_dict_type(instance_or_class: Any) -> bool:
     return getattr(instance_or_class, '__origin__', None) is Dict
 
 
-def is_envclass(instance_or_class: Any):
+def is_envclass(instance_or_class: Any) -> bool:
     """
     Test if instance_or_class is envclass.
     """
     return hasattr(instance_or_class, ENVCLASS_DUNDER_FUNC_NAME)
 
 
-def load_env(inst, prefix: str=None):
+def load_env(inst, prefix: str=None) -> None:
     """
     Load environment variable and override an instance of envclass.
     """

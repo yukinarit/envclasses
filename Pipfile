@@ -8,6 +8,7 @@ python_version = ">3.6"
 
 [packages]
 dataclasses = { version = "*", markers="python_version < '3.7'" }
+pyyaml = "*"
 
 [dev-packages]
 pytest = "*"

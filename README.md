@@ -78,7 +78,7 @@ Usage
     $ export HOGE_S=hogehoge
     $ export HOGE_F=0.2
     $ export HOGE_B=true
-    $ export HOGE_DCT="{'key': 100.0}"
+    $ export HOGE_DCT="{key: 100.0}"
     $ export HOGE_LST="[1, 2, 3]"
     $ python hoge.py
     ```

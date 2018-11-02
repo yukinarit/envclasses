@@ -20,10 +20,12 @@ setup_requires = [
 if sys.version_info < (3, 7):
     requires = [
         'dataclasses',
+        'pyyaml',
     ]
 # Native dataclasses support for python >= 3.7
 else:
     requires = [
+        'pyyaml',
     ]
 
 tests_require = [
