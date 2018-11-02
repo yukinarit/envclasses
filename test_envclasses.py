@@ -1,10 +1,13 @@
 import enum
 import os
+from pathlib import Path
 from typing import List, Tuple, Dict
 
-from dataclasses import dataclass, field, fields
+from dataclasses import dataclass, fields, field, Field
 from envclasses import (envclass, load_env, is_enum, is_dict_type,
                         InvalidNumberOfElement)
+
+basedir = Path(__file__).parent
 
 
 def test_envclass_primitive():
@@ -128,7 +131,7 @@ def test_envclass_tuple():
         assert h.tuple_two == (1, 2.0)
 
 
-def test_envclass_inner():
+def test_envclass_nested():
     @envclass
     @dataclass
     class Fuga:
@@ -156,6 +159,19 @@ def test_envclass_inner():
     assert h.s == 'hogehoge'
     assert h.fuga.i == 200
     assert h.fuga.s == 'fugafuga'
+
+
+def test_envclass_pathlib():
+    @envclass
+    @dataclass
+    class Hoge:
+        p: Path = field(default_factory=Path)
+
+    h = Hoge(p=Path('.'))
+    assert h.p == Path('.')
+    os.environ['ENV_P'] = './hoge'
+    load_env(h)
+    assert h.p == Path('./hoge')
 
 
 def test_load_env_with_prefix():
