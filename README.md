@@ -30,7 +30,7 @@ Installation
 
 * Install development version from Github
     ```
-    pip install git+https://github.com/yukinarit/WebSocketSample.git
+    pip install git+https://github.com/yukinarit/envclasses.git
     ```
 
 Usage
