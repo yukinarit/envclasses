@@ -7,6 +7,9 @@
 
 ```
 
+[![CircleCI](https://circleci.com/gh/yukinarit/envclasses.svg?style=svg)](https://circleci.com/gh/yukinarit/envclasses)
+[![PyPI version](https://badge.fury.io/py/envclasses.svg)](https://badge.fury.io/py/envclasses)
+
 envclass is a meta programming library on top of dataclass.
 Once envclass decorator is specified in a dataclass,
 It will generate dunder function which loads values from
