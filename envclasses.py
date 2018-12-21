@@ -5,15 +5,14 @@
 #  \___|_| |_|\_/ \___|_|\__,_|___/___/\___||___/
 #
 
-import functools
-import os
-import logging
 import enum
+import functools
+import logging
+import os
+from typing import Any, Dict, List, Tuple, Type, TypeVar
+
 import yaml
-from pathlib import Path
-from typing import List, Tuple, Dict, Callable, Any, Optional, Type, \
-    TypeVar
-from dataclasses import fields, Field
+from dataclasses import Field, fields
 
 __all__ = [
     '__version__',
@@ -102,9 +101,10 @@ def envclass(_cls: type) -> type:
         # Load values from environment variables.
         load_env(hoge, prefix='HOGE')
     """
+
     @functools.wraps(_cls)
     def wrap(cls) -> type:
-        def load_env(self, _prefix: str=None) -> None:
+        def load_env(self, _prefix: str = None) -> None:
             """
             Load attributes from environment variables.
             """
@@ -125,8 +125,10 @@ def envclass(_cls: type) -> type:
                     _load_enum(self, f, prefix)
                 else:
                     _load_other(self, f, prefix)
+
         setattr(cls, ENVCLASS_DUNDER_FUNC_NAME, load_env)
         return cls
+
     return wrap(_cls)
 
 
@@ -173,10 +175,8 @@ def _load_tuple(obj, f: Field, prefix: str) -> None:
 
     lst = yaml.load(s)
     if len(lst) != len(element_types):
-        raise InvalidNumberOfElement(f'expected={len(element_types)} '
-                                     f'actual={len(lst)}')
-    tpl = tuple(element_type(e)
-                for e, element_type in zip(lst, element_types))
+        raise InvalidNumberOfElement(f'expected={len(element_types)} ' f'actual={len(lst)}')
+    tpl = tuple(element_type(e) for e, element_type in zip(lst, element_types))
     setattr(obj, f.name, tpl)
 
 
@@ -193,8 +193,7 @@ def _load_dict(obj, f: Field, prefix: str) -> None:
     except KeyError:
         return
 
-    dct = {_to_value(k, key_type): _to_value(v, value_type)
-           for k, v in yaml.load(s).items()}
+    dct = {_to_value(k, key_type): _to_value(v, value_type) for k, v in yaml.load(s).items()}
     setattr(obj, f.name, dct)
 
 
@@ -263,7 +262,7 @@ def is_envclass(instance_or_class: Any) -> bool:
     return hasattr(instance_or_class, ENVCLASS_DUNDER_FUNC_NAME)
 
 
-def load_env(inst, prefix: str=None) -> None:
+def load_env(inst, prefix: str = None) -> None:
     """
     Load environment variable and override an instance of envclass.
     """

@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 from typing import List, Tuple, Dict
 
-from dataclasses import dataclass, fields, field, Field
+from dataclasses import dataclass, fields, field
 from envclasses import (envclass, load_env, is_enum, is_dict_type,
                         InvalidNumberOfElement)
 

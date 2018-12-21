@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [requires]
-python_version = ">3.6"
+python_version = "3.6"
 
 [packages]
 dataclasses = { version = "*", markers="python_version < '3.7'" }
@@ -12,6 +12,8 @@ pyyaml = "*"
 
 [dev-packages]
 pytest = "*"
-pytest-pycodestyle = "*"
+pytest-flake8 = "*"
 mypy = "*"
 pdoc = "*"
+yapf = "*"
+isort = "*"

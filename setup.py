@@ -29,12 +29,12 @@ else:
     ]
 
 tests_require = [
-    'coverage',
     'pytest',
     'pytest-cov',
     'pytest-flake8',
     'mypy',
-    'flake8',
+    'yapf',
+    'isort',
 ]
 
 docs_require = [
