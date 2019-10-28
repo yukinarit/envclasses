@@ -78,7 +78,7 @@ def envclass(_cls: type) -> type:
 
         @envclass
         @dataclass
-        class Hoge:
+        class Foo:
             i: int
             s: str
             f: float
@@ -87,19 +87,19 @@ def envclass(_cls: type) -> type:
             dct: Dict[str, float] = field(default_factory=dict)
 
         # Create an instance.
-        hoge = Hoge(i=10, s='hoge', f=0.1, b=False)
+        foo = Foo(i=10, s='foo', f=0.1, b=False)
 
         # Set environment variables just to show you how envclass works.
         # But this is usually set outside application.
-        os.environ['HOGE_I'] = '20'
-        os.environ['HOGE_S'] = 'hogehoge'
-        os.environ['HOGE_F'] = '0.2'
-        os.environ['HOGE_B'] = 'true'
-        os.environ['HOGE_DCT'] = '{key: 100.0}'
-        os.environ['HOGE_LST'] = '[1, 2, 3]'
+        os.environ['FOO_I'] = '20'
+        os.environ['FOO_S'] = 'foofoo'
+        os.environ['FOO_F'] = '0.2'
+        os.environ['FOO_B'] = 'true'
+        os.environ['FOO_DCT'] = '{key: 100.0}'
+        os.environ['FOO_LST'] = '[1, 2, 3]'
 
         # Load values from environment variables.
-        load_env(hoge, prefix='HOGE')
+        load_env(foo, prefix='FOO')
     """
 
     @functools.wraps(_cls)

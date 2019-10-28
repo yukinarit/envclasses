@@ -7,85 +7,58 @@
 
 ```
 
+[![image](https://img.shields.io/pypi/v/envclasses.svg)](https://pypi.org/project/envclasses/)
+[![image](https://img.shields.io/pypi/pyversions/envclasses.svg)](https://pypi.org/project/envclasses/)
 [![CircleCI](https://circleci.com/gh/yukinarit/envclasses.svg?style=svg)](https://circleci.com/gh/yukinarit/envclasses)
-[![PyPI version](https://badge.fury.io/py/envclasses.svg)](https://badge.fury.io/py/envclasses)
 
-envclass is a meta programming library on top of dataclass.
-Once envclass decorator is specified in a dataclass,
-It will generate dunder function which loads values from
-environment variables. This functionality is very useful
-in a case like you want to override the exisiting configurations
-for an application by the ones defined in environment variables.
-
-Requirements
-============
-
-python >= 3.6.0
+envclass is a small library which maps environment variables dataclass's fields
+This is very useful in a case like you want to override the configurations read
+from file.
 
 
-Installation
-============
+## Installation
 
-* Install from PyPI
-    ```
-    pip install envclasses
-    ```
-
-* Install development version from Github
-    ```
-    pip install git+https://github.com/yukinarit/envclasses.git
-    ```
-
-Usage
-=====
-
-* Create Hoge instance
-    ```python
-    from typing import List, Dict
-    from dataclasses import dataclass, field
-    from envclasses import envclass, load_env
+```bash
+pip install envclasses
+```
 
 
-    @envclass
-    @dataclass
-    class Hoge:
-        i: int
-        s: str
-        f: float
-        b: bool
-        lst: List[int] = field(default_factory=list)
-        dct: Dict[str, float] = field(default_factory=dict)
+## Usage
 
+```python
+# foo.py
+from typing import List, Dict
+from dataclasses import dataclass, field
+from envclasses import envclass, load_env
 
-    # Create an instance.
-    hoge = Hoge(i=10, s='hoge', f=0.1, b=False)
+@envclass
+@dataclass
+class Foo:
+    i: int
+    s: str
+    f: float
+    b: bool
+    lst: List[int] = field(default_factory=list)
+    dct: Dict[str, float] = field(default_factory=dict)
 
-    # Load values from environment variables.
-    load_env(hoge, prefix='HOGE')
+foo = Foo(i=10, s='foo', f=0.1, b=False)
 
-    print(hoge)
-    ```
+# Map environment variables to fields.
+load_env(foo, prefix='FOO')
 
-* Run
-    ```bash
-    $ python hoge.py
-    ```
+print(foo)
+```
 
-    ```bash
-    Hoge(i=10, s='hoge', f=0.1, b=False, lst=[], dct={})
-    ```
+run
 
-* Override Hoge values by environment variables
-    ```bash
-    $ export HOGE_I=20
-    $ export HOGE_S=hogehoge
-    $ export HOGE_F=0.2
-    $ export HOGE_B=true
-    $ export HOGE_DCT="{key: 100.0}"
-    $ export HOGE_LST="[1, 2, 3]"
-    $ python hoge.py
-    ```
+```bash
+$ python foo.py
+Foo(i=10, s='foo', f=0.1, b=False, lst=[], dct={})
+```
 
-    ```bash
-    Hoge(i=20, s='hogehoge', f=0.2, b=True, lst=[1, 2, 3], dct={'key': 100.0})
-    ```
+Run with environment variables
+
+```bash
+$ FOO_I=20 FOO_S=foofoo FOO_F=0.2FOO_B=true FOO_DCT="{key: 100.0}" FOO_LST="[1, 2, 3]" python foo.py
+Foo(i=20, s='foofoo', f=0.2, b=True, lst=[1, 2, 3], dct={'key': 100.0})
+```
