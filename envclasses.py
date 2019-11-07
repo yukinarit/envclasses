@@ -9,10 +9,11 @@ import enum
 import functools
 import logging
 import os
-from typing import Any, Dict, List, Tuple, Type, TypeVar
+from typing import Any, Dict, List, Type, TypeVar
 
 import yaml
 from dataclasses import Field, fields
+from typing_inspect import get_origin
 
 __all__ = [
     '__version__',
@@ -119,7 +120,7 @@ def envclass(_cls: type) -> type:
                     _load_list(self, f, prefix)
                 elif is_tuple(f.type):
                     _load_tuple(self, f, prefix)
-                elif is_dict_type(f.type):
+                elif is_dict(f.type):
                     _load_dict(self, f, prefix)
                 elif is_enum(f.type):
                     _load_enum(self, f, prefix)
@@ -227,32 +228,44 @@ def _load_other(obj, f: Field, prefix: str) -> None:
         pass
 
 
-def is_enum(cls: type) -> bool:
+def is_enum(typ: Type) -> bool:
     """
     Test if class is Enum class.
     """
-    return issubclass(cls, enum.Enum)
+    try:
+        return issubclass(typ, enum.Enum)
+    except TypeError:
+        return isinstance(typ, enum.Enum)
 
 
-def is_list(instance_or_class: Any) -> bool:
+def is_list(typ: Type) -> bool:
     """
-    Test if instance or class is List.
+    Test if the type is `typing.List`.
     """
-    return getattr(instance_or_class, '__origin__', None) is List
+    try:
+        return issubclass(get_origin(typ), list)
+    except TypeError:
+        return isinstance(typ, list)
 
 
-def is_tuple(instance_or_class: Any) -> bool:
+def is_tuple(typ: Type) -> bool:
     """
-    Test if instance or class is Tuple.
+    Test if the type is `typing.Tuple`.
     """
-    return getattr(instance_or_class, '__origin__', None) is Tuple
+    try:
+        return issubclass(get_origin(typ), tuple)
+    except TypeError:
+        return isinstance(typ, tuple)
 
 
-def is_dict_type(instance_or_class: Any) -> bool:
+def is_dict(typ: Type) -> bool:
     """
-    Test if instance or class is Dict.
+    Test if the type is `typing.Dict`.
     """
-    return getattr(instance_or_class, '__origin__', None) is Dict
+    try:
+        return issubclass(get_origin(typ), dict)
+    except TypeError:
+        return isinstance(typ, dict)
 
 
 def is_envclass(instance_or_class: Any) -> bool:
