@@ -16,17 +16,14 @@ setup_requires = [
     'pytest-runner',
 ]
 
+requires = [
+    'pyyaml',
+    'typing_inspect>=0.4.0',
+]
+
 # Installs dataclasses from PyPI for python < 3.7
 if sys.version_info < (3, 7):
-    requires = [
-        'dataclasses',
-        'pyyaml',
-    ]
-# Native dataclasses support for python >= 3.7
-else:
-    requires = [
-        'pyyaml',
-    ]
+    requires.append('dataclasses')
 
 tests_require = [
     'pytest',
@@ -67,5 +64,6 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
     ],
 )

@@ -4,8 +4,7 @@ from pathlib import Path
 from typing import List, Tuple, Dict
 
 from dataclasses import dataclass, fields, field
-from envclasses import (envclass, load_env, is_enum, is_dict_type,
-                        InvalidNumberOfElement)
+from envclasses import envclass, load_env, is_enum, is_dict, InvalidNumberOfElement
 
 basedir = Path(__file__).parent
 
@@ -102,7 +101,7 @@ def test_envclass_dict():
     assert h.dct_str_float == {}
     assert h.dct_in_dct == {}
     assert h.lst_in_dct == {}
-    assert is_dict_type(fields(Hoge)[0].type)
+    assert is_dict(fields(Hoge)[0].type)
     os.environ['ENV_DCT_INT'] = '{1: 2}'
     os.environ['ENV_DCT_STR_FLOAT'] = "{hoge: 2}"
     os.environ['ENV_DCT_IN_DCT'] = "{hoge: {1: 2}}"
