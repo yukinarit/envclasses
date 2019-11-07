@@ -26,7 +26,7 @@ __all__ = [
     'load_env',
 ]
 
-__version__ = '0.2.1'
+__version__ = '0.2.2'
 """ Version of envclass. """
 
 logger = logging.getLogger('envclasses')
