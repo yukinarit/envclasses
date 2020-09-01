@@ -157,7 +157,7 @@ def _load_list(obj, f: Field, prefix: str) -> None:
     except KeyError:
         return
 
-    yml = yaml.load(s)
+    yml = yaml.safe_load(s)
     lst = [element_type(e) for e in yml]
     setattr(obj, f.name, lst)
 
@@ -174,7 +174,7 @@ def _load_tuple(obj, f: Field, prefix: str) -> None:
     except KeyError:
         return
 
-    lst = yaml.load(s)
+    lst = yaml.safe_load(s)
     if len(lst) != len(element_types):
         raise InvalidNumberOfElement(f'expected={len(element_types)} ' f'actual={len(lst)}')
     tpl = tuple(element_type(e) for e, element_type in zip(lst, element_types))
@@ -194,7 +194,7 @@ def _load_dict(obj, f: Field, prefix: str) -> None:
     except KeyError:
         return
 
-    dct = {_to_value(k, key_type): _to_value(v, value_type) for k, v in yaml.load(s).items()}
+    dct = {_to_value(k, key_type): _to_value(v, value_type) for k, v in yaml.safe_load(s).items()}
     setattr(obj, f.name, dct)
 
 
@@ -222,7 +222,7 @@ def _load_other(obj, f: Field, prefix: str) -> None:
     """
     name = f'{prefix.upper()}_{f.name.upper()}'
     try:
-        yml = yaml.load(os.environ[name])
+        yml = yaml.safe_load(os.environ[name])
         setattr(obj, f.name, _to_value(yml, f.type))
     except KeyError:
         pass
