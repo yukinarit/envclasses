@@ -111,7 +111,8 @@ def envclass(_cls: type) -> type:
             """
             for f in fields(cls):
                 # If no prefix specified, use the default PREFIX.
-                prefix = _prefix or ENVCLASS_PREFIX
+                prefix = _prefix if _prefix is not None else ENVCLASS_PREFIX
+                prefix += '_' if prefix else ''
                 logger.debug(f'prefix={prefix}, type={f.type}')
 
                 if is_envclass(f.type):
@@ -137,7 +138,7 @@ def _load_dataclass(obj, f: Field, prefix: str) -> None:
     """
     Override exisiting dataclass object by environment variables.
     """
-    inner_prefix = f'{prefix}_{f.name}'
+    inner_prefix = f'{prefix}{f.name}'
     o = getattr(obj, f.name)
     try:
         o.__envclasses_load_env__(inner_prefix)
@@ -151,7 +152,7 @@ def _load_list(obj, f: Field, prefix: str) -> None:
     """
     typ = f.type
     element_type = typ.__args__[0]
-    name = f'{prefix.upper()}_{f.name.upper()}'
+    name = f'{prefix.upper()}{f.name.upper()}'
     try:
         s: str = os.environ[name].strip()
     except KeyError:
@@ -167,7 +168,7 @@ def _load_tuple(obj, f: Field, prefix: str) -> None:
     Override tuple values by environment variables.
     """
     typ = f.type
-    name = f'{prefix.upper()}_{f.name.upper()}'
+    name = f'{prefix.upper()}{f.name.upper()}'
     element_types = typ.__args__
     try:
         s: str = os.environ[name].strip()
@@ -186,7 +187,7 @@ def _load_dict(obj, f: Field, prefix: str) -> None:
     Override dict values by environment variables.
     """
     typ = f.type
-    name = f'{prefix.upper()}_{f.name.upper()}'
+    name = f'{prefix.upper()}{f.name.upper()}'
     key_type = typ.__args__[0]
     value_type = typ.__args__[1]
     try:
@@ -207,7 +208,7 @@ def _to_value(v: JsonValue, typ: Type) -> Any:
 
 def _load_enum(obj, f: Field, prefix: str) -> None:
     enum_annotations = f.type.__dict__.get('__annotations__', {})
-    name = f'{prefix.upper()}_{f.name.upper()}'
+    name = f'{prefix.upper()}{f.name.upper()}'
     for n, nested_type in enum_annotations.items():
         try:
             setattr(obj, f.name, f.type(nested_type(os.environ[name])))
@@ -220,7 +221,7 @@ def _load_other(obj, f: Field, prefix: str) -> None:
     """
     Override values by environment variables.
     """
-    name = f'{prefix.upper()}_{f.name.upper()}'
+    name = f'{prefix.upper()}{f.name.upper()}'
     try:
         yml = yaml.safe_load(os.environ[name])
         setattr(obj, f.name, _to_value(yml, f.type))
