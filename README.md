@@ -62,3 +62,7 @@ Run with environment variables
 $ FOO_I=20 FOO_S=foofoo FOO_F=0.2FOO_B=true FOO_DCT="{key: 100.0}" FOO_LST="[1, 2, 3]" python foo.py
 Foo(i=20, s='foofoo', f=0.2, b=True, lst=[1, 2, 3], dct={'key': 100.0})
 ```
+
+Notes:
+- If `prefix` is not defined or set to `None`, the default prefix (`ENV_`) will be expected.
+- If `prefix` is set to the empty string `''`, no prefix will be expected in the environment variables.
