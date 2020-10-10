@@ -189,6 +189,19 @@ def test_load_env_with_prefix():
     assert h.i == 20
 
 
+def test_load_env_with_empty_prefix():
+    @envclass
+    @dataclass
+    class Hoge:
+        i: int
+
+    h = Hoge(i=10)
+    assert h.i == 10
+    os.environ['I'] = '30'
+    load_env(h, prefix='')
+    assert h.i == 30
+
+
 def test_is_enum():
     class SEnum(enum.Enum):
         s = 's'
