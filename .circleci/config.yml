@@ -2,32 +2,13 @@
 #
 # Check https://circleci.com/docs/2.0/language-python/ for more details
 #
-version: 2
+version: 2.1
 jobs:
-  py36:
-    docker: [image: circleci/python:3.6.8]
-    working_directory: ~/repo
-    steps:
-      - checkout
-      - run:
-          name: install dependencies
-          command: make setup
-      - run:
-          name: run tests
-          command: make test
-  py37:
-    docker: [image: circleci/python:3.7.5-stretch]
-    working_directory: ~/repo
-    steps:
-      - checkout
-      - run:
-          name: install dependencies
-          command: make setup
-      - run:
-          name: run tests
-          command: make test
-  py38:
-    docker: [image: circleci/python:3.8.0]
+  run-tests:
+    parameters:
+      python-version:
+        type: string
+    docker: [image: circleci/python:<<parameters.python-version>>]
     working_directory: ~/repo
     steps:
       - checkout
@@ -39,9 +20,12 @@ jobs:
           command: make test
 
 workflows:
-  version: 2
   build:
     jobs:
-      - "py36"
-      - "py37"
-      - "py38"
+      - run-tests:
+          matrix:
+            parameters:
+              python-version:
+                - 3.6.8
+                - 3.7.5
+                - 3.8.0
