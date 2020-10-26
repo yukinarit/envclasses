@@ -9,7 +9,7 @@
 
 [![image](https://img.shields.io/pypi/v/envclasses.svg)](https://pypi.org/project/envclasses/)
 [![image](https://img.shields.io/pypi/pyversions/envclasses.svg)](https://pypi.org/project/envclasses/)
-[![CircleCI](https://circleci.com/gh/yukinarit/envclasses.svg?style=svg)](https://circleci.com/gh/yukinarit/envclasses)
+![Test](https://github.com/alexmisk/envclasses/workflows/Test/badge.svg)
 
 envclass is a small library which maps environment variables dataclass's fields
 This is very useful in a case like you want to override the configurations read
