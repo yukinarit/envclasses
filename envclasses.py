@@ -213,7 +213,7 @@ def _load_enum(obj, f: Field, prefix: str) -> None:
         try:
             setattr(obj, f.name, f.type(nested_type(os.environ[name])))
             return
-        except ValueError:
+        except (KeyError, ValueError):
             continue
 
 
