@@ -24,3 +24,5 @@ jobs:
         make setup
     - name: Run tests
       run: make test
+    - name: Generate docs
+      run: make docs
