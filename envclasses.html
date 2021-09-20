@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="generator" content="pdoc 7.4.0" />
+    <meta name="generator" content="pdoc 8.0.0" />
     <title>envclasses API documentation</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2264%22%20height%3D%2264%22%20viewBox%3D%2244.5%202.5%2015%2015%22%3E%3Cpath%20d%3D%22M49.351%2021.041c-.233-.721-.546-2.408-.772-4.076-.042-.09-.067-.187-.046-.288-.166-1.347-.277-2.625-.241-3.351-1.378-1.008-2.271-2.586-2.271-4.362%200-.976.272-1.935.788-2.774.057-.094.122-.18.184-.268-.033-.167-.052-.339-.052-.516%200-1.477%201.202-2.679%202.679-2.679.791%200%201.496.352%201.987.9a6.3%206.3%200%200%201%201.001.029c.492-.564%201.207-.929%202.012-.929%201.477%200%202.679%201.202%202.679%202.679a2.65%202.65%200%200%201-.269%201.148c.383.747.595%201.572.595%202.41%200%202.311-1.507%204.29-3.635%205.107.037.699.147%202.27.423%203.294l.137.461c.156%202.136-4.612%205.166-5.199%203.215zm.127-4.919a4.78%204.78%200%200%200%20.775-.584c-.172-.115-.505-.254-.88-.378zm.331%202.302l.828-.502c-.202-.143-.576-.328-.984-.49zm.45%202.157l.701-.403c-.214-.115-.536-.249-.891-.376l.19.779zM49.13%204.141c0%20.152.123.276.276.276s.275-.124.275-.276-.123-.276-.276-.276-.275.124-.275.276zm.735-.389a1.15%201.15%200%200%201%20.314.783%201.16%201.16%200%200%201-1.162%201.162c-.457%200-.842-.27-1.032-.653-.026.117-.042.238-.042.362a1.68%201.68%200%200%200%201.679%201.679%201.68%201.68%200%200%200%201.679-1.679c0-.843-.626-1.535-1.436-1.654zm3.076%201.654a1.68%201.68%200%200%200%201.679%201.679%201.68%201.68%200%200%200%201.679-1.679c0-.037-.009-.072-.011-.109-.21.3-.541.508-.935.508a1.16%201.16%200%200%201-1.162-1.162%201.14%201.14%200%200%201%20.474-.912c-.015%200-.03-.005-.045-.005-.926.001-1.679.754-1.679%201.68zm1.861-1.265c0%20.152.123.276.276.276s.275-.124.275-.276-.123-.276-.276-.276-.275.124-.275.276zm1.823%204.823c0-.52-.103-1.035-.288-1.52-.466.394-1.06.64-1.717.64-1.144%200-2.116-.725-2.499-1.738-.383%201.012-1.355%201.738-2.499%201.738-.867%200-1.631-.421-2.121-1.062-.307.605-.478%201.267-.478%201.942%200%202.486%202.153%204.51%204.801%204.51s4.801-2.023%204.801-4.51zm-3.032%209.156l-.146-.492c-.276-1.02-.395-2.457-.444-3.268a6.11%206.11%200%200%201-1.18.115%206.01%206.01%200%200%201-2.536-.562l.006.175c.802.215%201.848.612%202.021%201.25.079.295-.021.601-.274.837l-.598.501c.667.304%201.243.698%201.311%201.179.02.144.022.507-.393.787l-.564.365c1.285.521%201.361.96%201.381%201.126.018.142.011.496-.427.746l-.854.489c.064-1.19%201.985-2.585%202.697-3.248zM49.34%209.925c0-.667%201-.667%201%200%200%20.653.818%201.205%201.787%201.205s1.787-.552%201.787-1.205c0-.667%201-.667%201%200%200%201.216-1.25%202.205-2.787%202.205s-2.787-.989-2.787-2.205zm-.887-7.633c-.093.077-.205.114-.317.114a.5.5%200%200%201-.318-.886L49.183.397a.5.5%200%200%201%20.703.068.5.5%200%200%201-.069.703zm7.661-.065c-.086%200-.173-.022-.253-.068l-1.523-.893c-.575-.337-.069-1.2.506-.863l1.523.892a.5.5%200%200%201%20.179.685c-.094.158-.261.247-.432.247z%22%20fill%3D%22%233bb300%22/%3E%3C/svg%3E"/>
 
@@ -18,6 +18,12 @@
             <div>
 
 
+
+                    <h2>Contents</h2>
+                    <ul>
+  <li><a href="#supported-types">Supported types</a></li>
+  <li><a href="#debugging">Debugging</a></li>
+</ul>
 
 
 
@@ -62,12 +68,176 @@
 envclasses    </h1>
 
                         <div class="docstring"><p><code><a href="">envclasses</a></code> is a library to map fields on dataclass object to environment variables.</p>
+
+<p>Declare a class with <code>dataclass</code> and <code><a href="#envclass">envclass</a></code> decorators. If you are new to dataclass,
+I recommend to read <a href="https://docs.python.org/3/library/dataclasses.html">dataclasses documentation</a>
+first.</p>
+
+<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nd">@envclass</span>
+<span class="gp">... </span><span class="nd">@dataclass</span>
+<span class="gp">... </span><span class="k">class</span> <span class="nc">Foo</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">v</span><span class="p">:</span> <span class="nb">int</span>
+</code></pre></div>
+
+<p>Create an instance of <code>Foo</code>, now <code>foo.v</code> is 10.</p>
+
+<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span> <span class="o">=</span> <span class="n">Foo</span><span class="p">(</span><span class="n">v</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Set environment variable <code>FOO_V</code> <code>100</code>.</p>
+
+<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">os</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;FOO_V&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;100&#39;</span>
+</code></pre></div>
+
+<p>Calling <code><a href="#load_env">load_env</a></code> will change the value from <code>10</code> to <code>100</code> on <code>foo.v</code>.</p>
+
+<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">load_env</span><span class="p">(</span><span class="n">foo</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span><span class="o">.</span><span class="n">v</span>
+<span class="go">100</span>
+</code></pre></div>
+
+<h3 id="supported-types">Supported types</h3>
+
+<ul>
+<li>Primitives (int, float, str, bool)</li>
+<li>Containers (List, Tuple, Dict)</li>
+</ul>
+
+<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nd">@envclass</span>
+<span class="gp">... </span><span class="nd">@dataclass</span>
+<span class="gp">... </span><span class="k">class</span> <span class="nc">Foo</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">lst</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">dct</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span> <span class="o">=</span> <span class="n">Foo</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;FOO_LST&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;[1, 2]&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;FOO_DCT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{key: 100.0}</span><span class="s1">&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">load_env</span><span class="p">(</span><span class="n">foo</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;FOO&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span>
+<span class="go">Foo(lst=[1, 2], dct={&#39;key&#39;: 100.0})</span>
+</code></pre></div>
+
+<ul>
+<li>Nested envclass</li>
+</ul>
+
+<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="nd">@envclass</span>
+<span class="gp">... </span><span class="nd">@dataclass</span>
+<span class="gp">... </span><span class="k">class</span> <span class="nc">Bar</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">v</span><span class="p">:</span> <span class="nb">int</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nd">@envclass</span>
+<span class="gp">... </span><span class="nd">@dataclass</span>
+<span class="gp">... </span><span class="k">class</span> <span class="nc">Foo</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">bar</span><span class="p">:</span> <span class="n">Bar</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span> <span class="o">=</span> <span class="n">Foo</span><span class="p">(</span><span class="n">Bar</span><span class="p">(</span><span class="n">v</span><span class="o">=</span><span class="mi">10</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;FOO_BAR_V&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;100&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">load_env</span><span class="p">(</span><span class="n">foo</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span><span class="o">.</span><span class="n">bar</span><span class="o">.</span><span class="n">v</span>
+<span class="go">100</span>
+</code></pre></div>
+
+<h3 id="debugging">Debugging</h3>
+
+<p>If you want to see how <code><a href="">envclasses</a></code> looks up environment variables, you may want to see the logs
+produced in the module. <code><a href="">envclasses</a></code> uses the logger of standard <code>logging</code> module. In order to
+see DEBUG logs, you can get the logger and configure the log level.</p>
+
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;envclasses&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+</code></pre></div>
 </div>
 
                         <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">`envclasses` is a library to map fields on dataclass object to environment variables.</span>
+
+<span class="sd">Declare a class with `dataclass` and `envclass` decorators. If you are new to dataclass,</span>
+<span class="sd">I recommend to read [dataclasses documentation](https://docs.python.org/3/library/dataclasses.html)</span>
+<span class="sd">first.</span>
+
+<span class="sd">&gt;&gt;&gt; from dataclasses import dataclass</span>
+<span class="sd">&gt;&gt;&gt;</span>
+<span class="sd">&gt;&gt;&gt; @envclass</span>
+<span class="sd">... @dataclass</span>
+<span class="sd">... class Foo:</span>
+<span class="sd">...     v: int</span>
+
+<span class="sd">Create an instance of `Foo`, now `foo.v` is 10.</span>
+
+<span class="sd">&gt;&gt;&gt; foo = Foo(v=10)</span>
+
+<span class="sd">Set environment variable `FOO_V` `100`.</span>
+
+<span class="sd">&gt;&gt;&gt; import os</span>
+<span class="sd">&gt;&gt;&gt; os.environ[&#39;FOO_V&#39;] = &#39;100&#39;</span>
+
+<span class="sd">Calling `load_env` will change the value from `10` to `100` on `foo.v`.</span>
+
+<span class="sd">&gt;&gt;&gt; load_env(foo, prefix=&#39;foo&#39;)</span>
+<span class="sd">&gt;&gt;&gt; foo.v</span>
+<span class="sd">100</span>
+
+<span class="sd">### Supported types</span>
+
+<span class="sd">* Primitives (int, float, str, bool)</span>
+<span class="sd">* Containers (List, Tuple, Dict)</span>
+
+<span class="sd">&gt;&gt;&gt; from typing import List, Dict</span>
+<span class="sd">&gt;&gt;&gt; from dataclasses import dataclass, field</span>
+<span class="sd">&gt;&gt;&gt;</span>
+<span class="sd">&gt;&gt;&gt; @envclass</span>
+<span class="sd">... @dataclass</span>
+<span class="sd">... class Foo:</span>
+<span class="sd">...     lst: List[int] = field(default_factory=list)</span>
+<span class="sd">...     dct: Dict[str, float] = field(default_factory=dict)</span>
+<span class="sd">...</span>
+<span class="sd">&gt;&gt;&gt; foo = Foo()</span>
+<span class="sd">&gt;&gt;&gt; os.environ[&#39;FOO_LST&#39;] = &#39;[1, 2]&#39;</span>
+<span class="sd">&gt;&gt;&gt; os.environ[&#39;FOO_DCT&#39;] = &#39;{key: 100.0}&#39;</span>
+<span class="sd">&gt;&gt;&gt; load_env(foo, prefix=&#39;FOO&#39;)</span>
+<span class="sd">&gt;&gt;&gt; foo</span>
+<span class="sd">Foo(lst=[1, 2], dct={&#39;key&#39;: 100.0})</span>
+
+<span class="sd">* Nested envclass</span>
+
+<span class="sd">&gt;&gt;&gt; @envclass</span>
+<span class="sd">... @dataclass</span>
+<span class="sd">... class Bar:</span>
+<span class="sd">...     v: int</span>
+<span class="sd">&gt;&gt;&gt;</span>
+<span class="sd">&gt;&gt;&gt; @envclass</span>
+<span class="sd">... @dataclass</span>
+<span class="sd">... class Foo:</span>
+<span class="sd">...     bar: Bar</span>
+
+<span class="sd">&gt;&gt;&gt; foo = Foo(Bar(v=10))</span>
+<span class="sd">&gt;&gt;&gt; os.environ[&#39;FOO_BAR_V&#39;] = &#39;100&#39;</span>
+<span class="sd">&gt;&gt;&gt; load_env(foo, prefix=&#39;foo&#39;)</span>
+<span class="sd">&gt;&gt;&gt; foo.bar.v</span>
+<span class="sd">100</span>
+
+<span class="sd">### Debugging</span>
+
+<span class="sd">If you want to see how `envclasses` looks up environment variables, you may want to see the logs</span>
+<span class="sd">produced in the module. `envclasses` uses the logger of standard `logging` module. In order to</span>
+<span class="sd">see DEBUG logs, you can get the logger and configure the log level.</span>
+
+<span class="sd">```python</span>
+<span class="sd">import logging</span>
+
+<span class="sd">logging.getLogger(&quot;envclasses&quot;).setLevel(logging.DEBUG)</span>
+<span class="sd">```</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">enum</span>
 <span class="kn">import</span> <span class="nn">functools</span>
@@ -127,50 +297,6 @@ envclasses    </h1>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    `envclass` decorator generates methods to loads field values from environment variables.</span>
 
-<span class="sd">    Declare a class with dataclass and envclass decorators.</span>
-
-<span class="sd">    &gt;&gt;&gt; from dataclasses import dataclass</span>
-<span class="sd">    &gt;&gt;&gt;</span>
-<span class="sd">    &gt;&gt;&gt; @envclass</span>
-<span class="sd">    ... @dataclass</span>
-<span class="sd">    ... class Foo:</span>
-<span class="sd">    ...     v: int</span>
-
-<span class="sd">    Create an instance of `Foo`, now `foo.v` is 10.</span>
-
-<span class="sd">    &gt;&gt;&gt; foo = Foo(v=10)</span>
-
-<span class="sd">    Set environment variable `FOO_V` `100`.</span>
-
-<span class="sd">    &gt;&gt;&gt; import os</span>
-<span class="sd">    &gt;&gt;&gt; os.environ[&#39;FOO_V&#39;] = &#39;100&#39;</span>
-
-<span class="sd">    Calling `load_env` will change `10` to `100` on `foo.v`.</span>
-
-<span class="sd">    &gt;&gt;&gt; load_env(foo, prefix=&#39;foo&#39;)</span>
-<span class="sd">    &gt;&gt;&gt; foo.v</span>
-<span class="sd">    100</span>
-
-<span class="sd">    #### Supported types</span>
-
-<span class="sd">    * Primitives (int, float, str, bool)</span>
-<span class="sd">    * Containers (List, Tuple, Dict)</span>
-
-<span class="sd">    &gt;&gt;&gt; from typing import List, Dict</span>
-<span class="sd">    &gt;&gt;&gt; from dataclasses import dataclass, field</span>
-<span class="sd">    &gt;&gt;&gt;</span>
-<span class="sd">    &gt;&gt;&gt; @envclass</span>
-<span class="sd">    ... @dataclass</span>
-<span class="sd">    ... class Foo:</span>
-<span class="sd">    ...     lst: List[int] = field(default_factory=list)</span>
-<span class="sd">    ...     dct: Dict[str, float] = field(default_factory=dict)</span>
-<span class="sd">    ...</span>
-<span class="sd">    &gt;&gt;&gt; foo = Foo()</span>
-<span class="sd">    &gt;&gt;&gt; os.environ[&#39;FOO_LST&#39;] = &#39;[1, 2]&#39;</span>
-<span class="sd">    &gt;&gt;&gt; os.environ[&#39;FOO_DCT&#39;] = &#39;{key: 100.0}&#39;</span>
-<span class="sd">    &gt;&gt;&gt; load_env(foo, prefix=&#39;FOO&#39;)</span>
-<span class="sd">    &gt;&gt;&gt; foo</span>
-<span class="sd">    Foo(lst=[1, 2], dct={&#39;key&#39;: 100.0})</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">_cls</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">wrap</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">:</span>
@@ -342,8 +468,6 @@ envclasses    </h1>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Test if instance_or_class is envclass.</span>
 
-<span class="sd">    &gt;&gt;&gt; from dataclasses import dataclass</span>
-<span class="sd">    &gt;&gt;&gt;</span>
 <span class="sd">    &gt;&gt;&gt; @envclass</span>
 <span class="sd">    ... @dataclass</span>
 <span class="sd">    ... class Foo:</span>
@@ -384,17 +508,6 @@ envclasses    </h1>
 <span class="sd">    &gt;&gt;&gt; load_env(foo, &#39;&#39;)</span>
 <span class="sd">    &gt;&gt;&gt; foo.v</span>
 <span class="sd">    100</span>
-
-<span class="sd">    #### Debugging</span>
-
-<span class="sd">    If you want to see what `envclasses` looks up, you may want to see the logs produced</span>
-<span class="sd">    in this module.</span>
-
-<span class="sd">    ```python</span>
-<span class="sd">    import logging</span>
-
-<span class="sd">    logging.getLogger(&quot;envclasses&quot;).setLevel(logging.DEBUG)</span>
-<span class="sd">    ```</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">inst</span><span class="o">.</span><span class="n">__envclasses_load_env__</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
 </pre></div>
@@ -416,50 +529,6 @@ envclasses    </h1>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    `envclass` decorator generates methods to loads field values from environment variables.</span>
 
-<span class="sd">    Declare a class with dataclass and envclass decorators.</span>
-
-<span class="sd">    &gt;&gt;&gt; from dataclasses import dataclass</span>
-<span class="sd">    &gt;&gt;&gt;</span>
-<span class="sd">    &gt;&gt;&gt; @envclass</span>
-<span class="sd">    ... @dataclass</span>
-<span class="sd">    ... class Foo:</span>
-<span class="sd">    ...     v: int</span>
-
-<span class="sd">    Create an instance of `Foo`, now `foo.v` is 10.</span>
-
-<span class="sd">    &gt;&gt;&gt; foo = Foo(v=10)</span>
-
-<span class="sd">    Set environment variable `FOO_V` `100`.</span>
-
-<span class="sd">    &gt;&gt;&gt; import os</span>
-<span class="sd">    &gt;&gt;&gt; os.environ[&#39;FOO_V&#39;] = &#39;100&#39;</span>
-
-<span class="sd">    Calling `load_env` will change `10` to `100` on `foo.v`.</span>
-
-<span class="sd">    &gt;&gt;&gt; load_env(foo, prefix=&#39;foo&#39;)</span>
-<span class="sd">    &gt;&gt;&gt; foo.v</span>
-<span class="sd">    100</span>
-
-<span class="sd">    #### Supported types</span>
-
-<span class="sd">    * Primitives (int, float, str, bool)</span>
-<span class="sd">    * Containers (List, Tuple, Dict)</span>
-
-<span class="sd">    &gt;&gt;&gt; from typing import List, Dict</span>
-<span class="sd">    &gt;&gt;&gt; from dataclasses import dataclass, field</span>
-<span class="sd">    &gt;&gt;&gt;</span>
-<span class="sd">    &gt;&gt;&gt; @envclass</span>
-<span class="sd">    ... @dataclass</span>
-<span class="sd">    ... class Foo:</span>
-<span class="sd">    ...     lst: List[int] = field(default_factory=list)</span>
-<span class="sd">    ...     dct: Dict[str, float] = field(default_factory=dict)</span>
-<span class="sd">    ...</span>
-<span class="sd">    &gt;&gt;&gt; foo = Foo()</span>
-<span class="sd">    &gt;&gt;&gt; os.environ[&#39;FOO_LST&#39;] = &#39;[1, 2]&#39;</span>
-<span class="sd">    &gt;&gt;&gt; os.environ[&#39;FOO_DCT&#39;] = &#39;{key: 100.0}&#39;</span>
-<span class="sd">    &gt;&gt;&gt; load_env(foo, prefix=&#39;FOO&#39;)</span>
-<span class="sd">    &gt;&gt;&gt; foo</span>
-<span class="sd">    Foo(lst=[1, 2], dct={&#39;key&#39;: 100.0})</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">_cls</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">wrap</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">:</span>
@@ -495,58 +564,6 @@ envclasses    </h1>
         </details>
 
             <div class="docstring"><p><code><a href="#envclass">envclass</a></code> decorator generates methods to loads field values from environment variables.</p>
-
-<p>Declare a class with dataclass and envclass decorators.</p>
-
-<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
-<span class="go">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nd">@envclass</span>
-<span class="gp">... </span><span class="nd">@dataclass</span>
-<span class="gp">... </span><span class="k">class</span> <span class="nc">Foo</span><span class="p">:</span>
-<span class="gp">... </span>    <span class="n">v</span><span class="p">:</span> <span class="nb">int</span>
-</code></pre></div>
-
-<p>Create an instance of <code>Foo</code>, now <code>foo.v</code> is 10.</p>
-
-<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span> <span class="o">=</span> <span class="n">Foo</span><span class="p">(</span><span class="n">v</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-</code></pre></div>
-
-<p>Set environment variable <code>FOO_V</code> <code>100</code>.</p>
-
-<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">os</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;FOO_V&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;100&#39;</span>
-</code></pre></div>
-
-<p>Calling <code><a href="#load_env">load_env</a></code> will change <code>10</code> to <code>100</code> on <code>foo.v</code>.</p>
-
-<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">load_env</span><span class="p">(</span><span class="n">foo</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span><span class="o">.</span><span class="n">v</span>
-<span class="go">100</span>
-</code></pre></div>
-
-<h4 id="supported-types">Supported types</h4>
-
-<ul>
-<li>Primitives (int, float, str, bool)</li>
-<li>Containers (List, Tuple, Dict)</li>
-</ul>
-
-<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
-<span class="go">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nd">@envclass</span>
-<span class="gp">... </span><span class="nd">@dataclass</span>
-<span class="gp">... </span><span class="k">class</span> <span class="nc">Foo</span><span class="p">:</span>
-<span class="gp">... </span>    <span class="n">lst</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
-<span class="gp">... </span>    <span class="n">dct</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
-<span class="gp">...</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span> <span class="o">=</span> <span class="n">Foo</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;FOO_LST&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;[1, 2]&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;FOO_DCT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{key: 100.0}</span><span class="s1">&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">load_env</span><span class="p">(</span><span class="n">foo</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;FOO&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span>
-<span class="go">Foo(lst=[1, 2], dct={&#39;key&#39;: 100.0})</span>
-</code></pre></div>
 </div>
 
 
@@ -565,8 +582,6 @@ envclasses    </h1>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Test if instance_or_class is envclass.</span>
 
-<span class="sd">    &gt;&gt;&gt; from dataclasses import dataclass</span>
-<span class="sd">    &gt;&gt;&gt;</span>
 <span class="sd">    &gt;&gt;&gt; @envclass</span>
 <span class="sd">    ... @dataclass</span>
 <span class="sd">    ... class Foo:</span>
@@ -581,9 +596,7 @@ envclasses    </h1>
 
             <div class="docstring"><p>Test if instance_or_class is envclass.</p>
 
-<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
-<span class="go">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nd">@envclass</span>
+<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="nd">@envclass</span>
 <span class="gp">... </span><span class="nd">@dataclass</span>
 <span class="gp">... </span><span class="k">class</span> <span class="nc">Foo</span><span class="p">:</span>
 <span class="gp">... </span>    <span class="k">pass</span>
@@ -634,17 +647,6 @@ envclasses    </h1>
 <span class="sd">    &gt;&gt;&gt; load_env(foo, &#39;&#39;)</span>
 <span class="sd">    &gt;&gt;&gt; foo.v</span>
 <span class="sd">    100</span>
-
-<span class="sd">    #### Debugging</span>
-
-<span class="sd">    If you want to see what `envclasses` looks up, you may want to see the logs produced</span>
-<span class="sd">    in this module.</span>
-
-<span class="sd">    ```python</span>
-<span class="sd">    import logging</span>
-
-<span class="sd">    logging.getLogger(&quot;envclasses&quot;).setLevel(logging.DEBUG)</span>
-<span class="sd">    ```</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">inst</span><span class="o">.</span><span class="n">__envclasses_load_env__</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
 </pre></div>
@@ -680,16 +682,6 @@ omitted, the default prefix <code>env</code> is used.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">load_env</span><span class="p">(</span><span class="n">foo</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span><span class="o">.</span><span class="n">v</span>
 <span class="go">100</span>
-</code></pre></div>
-
-<h4 id="debugging">Debugging</h4>
-
-<p>If you want to see what <code><a href="">envclasses</a></code> looks up, you may want to see the logs produced
-in this module.</p>
-
-<div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">logging</span>
-
-<span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;envclasses&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
 </code></pre></div>
 </div>
 
