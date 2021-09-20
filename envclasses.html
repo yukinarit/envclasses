@@ -468,6 +468,8 @@ see DEBUG logs, you can get the logger and configure the log level.</p>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Test if instance_or_class is envclass.</span>
 
+<span class="sd">    &gt;&gt;&gt; from dataclasses import dataclass</span>
+<span class="sd">    &gt;&gt;&gt;</span>
 <span class="sd">    &gt;&gt;&gt; @envclass</span>
 <span class="sd">    ... @dataclass</span>
 <span class="sd">    ... class Foo:</span>
@@ -582,6 +584,8 @@ see DEBUG logs, you can get the logger and configure the log level.</p>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Test if instance_or_class is envclass.</span>
 
+<span class="sd">    &gt;&gt;&gt; from dataclasses import dataclass</span>
+<span class="sd">    &gt;&gt;&gt;</span>
 <span class="sd">    &gt;&gt;&gt; @envclass</span>
 <span class="sd">    ... @dataclass</span>
 <span class="sd">    ... class Foo:</span>
@@ -596,7 +600,9 @@ see DEBUG logs, you can get the logger and configure the log level.</p>
 
             <div class="docstring"><p>Test if instance_or_class is envclass.</p>
 
-<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="nd">@envclass</span>
+<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nd">@envclass</span>
 <span class="gp">... </span><span class="nd">@dataclass</span>
 <span class="gp">... </span><span class="k">class</span> <span class="nc">Foo</span><span class="p">:</span>
 <span class="gp">... </span>    <span class="k">pass</span>
