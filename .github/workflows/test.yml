@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.6.8, 3.7.5, 3.8.0]
+        python-version: [3.6, 3.7, 3.8]
 
     steps:
     - uses: actions/checkout@v2
@@ -24,3 +24,5 @@ jobs:
         make setup
     - name: Run tests
       run: make test
+    - name: Generate docs
+      run: make docs

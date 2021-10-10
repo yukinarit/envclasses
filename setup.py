@@ -6,7 +6,7 @@ from setuptools import setup
 
 root = pathlib.Path(__file__).parent.absolute()
 
-with open('envclasses.py', 'r', encoding='utf8') as f:
+with open('envclasses/__init__.py', 'r', encoding='utf8') as f:
     version = re.search(r'__version__ = \'(.*?)\'', f.read()).group(1)
 
 with open('README.md', 'r', encoding='utf8') as f:

@@ -9,20 +9,20 @@ setup:
 test: unittest pep8 mypy
 
 unittest:
-	pipenv run pytest
+	pipenv run pytest --doctest-modules envclasses test_envclasses.py -v
 
 pep8:
 	pipenv run pytest --flake8
 
 mypy:
-	pipenv run mypy envclasses.py
+	pipenv run mypy envclasses
 
 fmt:
-	yapf -i -r envclasses.py
-	isort -rc --atomic envclasses.py
+	yapf -i -r envclasses
+	isort -rc --atomic envclasses
 
 docs:
-	pipenv run pdoc envclasses.py --html --html-dir docs --overwrite
+	pipenv run pdoc -e envclasses=https://github.com/yukinarit/envclasses/envclasses/ envclasses -o docs
 
 serve-docs:
-	pipenv run pdoc --http --http-dir docs
+	pipenv run pdoc -e envclasses=https://github.com/yukinarit/envclasses/envclasses/ envclasses

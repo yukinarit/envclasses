@@ -1,29 +1,99 @@
-#                     | |
-#   ___ _ ____   _____| | __ _ ___ ___  ___  ___
-#  / _ \ '_ \ \ / / __| |/ _` / __/ __|/ _ \/ __|
-# |  __/ | | \ V / (__| | (_| \__ \__ \  __/\__ \
-#  \___|_| |_|\_/ \___|_|\__,_|___/___/\___||___/
-#
+"""
+`envclasses` is a library to map fields on dataclass object to environment variables.
 
+Declare a class with `dataclass` and `envclass` decorators. If you are new to dataclass,
+I recommend to read [dataclasses documentation](https://docs.python.org/3/library/dataclasses.html)
+first.
+
+>>> from dataclasses import dataclass
+>>>
+>>> @envclass
+... @dataclass
+... class Foo:
+...     v: int
+
+Create an instance of `Foo`, now `foo.v` is 10.
+
+>>> foo = Foo(v=10)
+
+Set environment variable `FOO_V` `100`.
+
+>>> import os
+>>> os.environ['FOO_V'] = '100'
+
+Calling `load_env` will change the value from `10` to `100` on `foo.v`.
+
+>>> load_env(foo, prefix='foo')
+>>> foo.v
+100
+
+### Supported types
+
+* Primitives (int, float, str, bool)
+* Containers (List, Tuple, Dict)
+
+>>> from typing import List, Dict
+>>> from dataclasses import dataclass, field
+>>>
+>>> @envclass
+... @dataclass
+... class Foo:
+...     lst: List[int] = field(default_factory=list)
+...     dct: Dict[str, float] = field(default_factory=dict)
+...
+>>> foo = Foo()
+>>> os.environ['FOO_LST'] = '[1, 2]'
+>>> os.environ['FOO_DCT'] = '{key: 100.0}'
+>>> load_env(foo, prefix='FOO')
+>>> foo
+Foo(lst=[1, 2], dct={'key': 100.0})
+
+* Nested envclass
+
+>>> @envclass
+... @dataclass
+... class Bar:
+...     v: int
+>>>
+>>> @envclass
+... @dataclass
+... class Foo:
+...     bar: Bar
+
+>>> foo = Foo(Bar(v=10))
+>>> os.environ['FOO_BAR_V'] = '100'
+>>> load_env(foo, prefix='foo')
+>>> foo.bar.v
+100
+
+### Debugging
+
+If you want to see how `envclasses` looks up environment variables, you may want to see the logs
+produced in the module. `envclasses` uses the logger of standard `logging` module. In order to
+see DEBUG logs, you can get the logger and configure the log level.
+
+```python
+import logging
+
+logging.getLogger("envclasses").setLevel(logging.DEBUG)
+```
+"""
 import enum
 import functools
 import logging
 import os
+from dataclasses import Field, fields
 from typing import Any, Dict, List, Type, TypeVar
 
 import yaml
-from dataclasses import Field, fields
 from typing_inspect import get_origin
 
 __all__ = [
-    '__version__',
-    'ENVCLASS_DUNDER_FUNC_NAME',
-    'ENVCLASS_PREFIX',
-    'EnvclassError',
-    'LoadEnvError',
     'envclass',
     'is_envclass',
     'load_env',
+    'EnvclassError',
+    'LoadEnvError',
 ]
 
 __version__ = '0.2.4'
@@ -44,7 +114,8 @@ JsonValue = TypeVar('JsonValue', str, int, float, bool, Dict, List)
 
 class EnvclassError(TypeError):
     """
-    Exception used in `envclass`. This is only raised at module load time.
+    Exception used in `envclass`. This exception is only raised when there is an
+    error in the class declaration.
     """
 
 
@@ -63,46 +134,9 @@ class InvalidNumberOfElement(LoadEnvError):
 
 def envclass(_cls: type) -> type:
     """
-    @envclass decorator: Decorate class as envclass.
+    `envclass` decorator generates methods to loads field values from environment variables.
 
-    envclass is a meta programming library on top of dataclass.
-    Once envclass decorator is specified in a dataclass,
-    It will generate dunder function which loads values from
-    environment variables. This functionality is very useful
-    in a case like you want to override the exisiting configurations
-    for an application by the ones defined in environment variables.
-
-        # Example
-        import os
-        from typing import List, Dict
-        from dataclasses import dataclass, field
-
-        @envclass
-        @dataclass
-        class Foo:
-            i: int
-            s: str
-            f: float
-            b: bool
-            lst: List[int] = field(default_factory=list)
-            dct: Dict[str, float] = field(default_factory=dict)
-
-        # Create an instance.
-        foo = Foo(i=10, s='foo', f=0.1, b=False)
-
-        # Set environment variables just to show you how envclass works.
-        # But this is usually set outside application.
-        os.environ['FOO_I'] = '20'
-        os.environ['FOO_S'] = 'foofoo'
-        os.environ['FOO_F'] = '0.2'
-        os.environ['FOO_B'] = 'true'
-        os.environ['FOO_DCT'] = '{key: 100.0}'
-        os.environ['FOO_LST'] = '[1, 2, 3]'
-
-        # Load values from environment variables.
-        load_env(foo, prefix='FOO')
     """
-
     @functools.wraps(_cls)
     def wrap(cls) -> type:
         def load_env(self, _prefix: str = None) -> None:
@@ -272,12 +306,48 @@ def is_dict(typ: Type) -> bool:
 def is_envclass(instance_or_class: Any) -> bool:
     """
     Test if instance_or_class is envclass.
+
+    >>> from dataclasses import dataclass
+    >>>
+    >>> @envclass
+    ... @dataclass
+    ... class Foo:
+    ...     pass
+    >>> is_envclass(Foo)
+    True
     """
     return hasattr(instance_or_class, ENVCLASS_DUNDER_FUNC_NAME)
 
 
 def load_env(inst, prefix: str = None) -> None:
     """
-    Load environment variable and override an instance of envclass.
+    Load field values from environment variables.
+
+    `inst` is an instance of envclass. If `inst` is not an envclass,
+    `LoadEnvError` exception is raised.
+
+    `prefix` specifies the prefix of environment variables that envclass looks up.
+    for example `prefix="foo"`, envclass will load value from environment variable
+    `FOO_<FIELD_NAME>` and update the field value on the instance. If `prefix` is
+    omitted, the default prefix `env` is used.
+
+    >>> from dataclasses import dataclass
+    >>>
+    >>> @envclass
+    ... @dataclass
+    ... class Foo:
+    ...     v: int
+    >>> foo = Foo(v=10)
+    >>> os.environ['ENV_V'] = '100'
+    >>> load_env(foo)
+    >>> foo.v
+    100
+
+    If an empty string is set in `prefix`, no prefix will be expected.
+
+    >>> os.environ['V'] = '100'
+    >>> load_env(foo, '')
+    >>> foo.v
+    100
     """
     inst.__envclasses_load_env__(prefix)
