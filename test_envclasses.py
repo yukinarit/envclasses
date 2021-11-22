@@ -202,6 +202,23 @@ def test_load_env_with_empty_prefix():
     assert h.i == 30
 
 
+def test_str():
+    @envclass
+    @dataclass
+    class Hoge:
+        date: str
+        text: str
+
+    h = Hoge(date='2021', text='a\nb')
+    assert h.date == '2021'
+    assert h.text == 'a\nb'
+    os.environ['DATE'] = '2022-01-01T22:00:00Z'
+    os.environ['TEXT'] = 'c\nd'
+    load_env(h, prefix='')
+    assert h.date == '2022-01-01T22:00:00Z'
+    assert h.text == 'c\nd'
+
+
 def test_is_enum():
     class SEnum(enum.Enum):
         s = 's'

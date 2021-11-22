@@ -159,6 +159,8 @@ def envclass(_cls: type) -> type:
                     _load_dict(self, f, prefix)
                 elif is_enum(f.type):
                     _load_enum(self, f, prefix)
+                elif is_str(f.type):
+                    _load_str(self, f, prefix)
                 else:
                     _load_other(self, f, prefix)
 
@@ -251,6 +253,18 @@ def _load_enum(obj, f: Field, prefix: str) -> None:
             continue
 
 
+def _load_str(obj, f: Field, prefix: str) -> None:
+    """
+    Override str values by environment variables.
+    """
+    name = f'{prefix.upper()}{f.name.upper()}'
+    try:
+        value = os.environ[name]
+        setattr(obj, f.name, _to_value(value, f.type))
+    except KeyError:
+        pass
+
+
 def _load_other(obj, f: Field, prefix: str) -> None:
     """
     Override values by environment variables.
@@ -301,6 +315,13 @@ def is_dict(typ: Type) -> bool:
         return issubclass(get_origin(typ), dict)
     except TypeError:
         return isinstance(typ, dict)
+
+
+def is_str(typ: Type) -> bool:
+    """
+    Test if the type is `str`.
+    """
+    return issubclass(typ, str)
 
 
 def is_envclass(instance_or_class: Any) -> bool:
