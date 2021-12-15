@@ -96,7 +96,7 @@ __all__ = [
     'LoadEnvError',
 ]
 
-__version__ = '0.2.4'
+__version__ = '0.2.5'
 """ Version of envclass. """
 
 logger = logging.getLogger('envclasses')
