@@ -2,7 +2,7 @@ import pathlib
 import re
 import sys
 from codecs import open
-from setuptools import setup
+from setuptools import setup, find_packages
 
 root = pathlib.Path(__file__).parent.absolute()
 
@@ -47,7 +47,7 @@ setup(
     author='yukinarit',
     author_email='yukinarit84@gmail.com',
     url='https://github.com/yukinarit/envclasses',
-    py_modules=['envclasses'],
+    packages=find_packages(exclude=['test_envclasses']),
     python_requires=">=3.6",
     setup_requires=setup_requires,
     install_requires=requires,
