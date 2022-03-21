@@ -321,7 +321,10 @@ def is_str(typ: Type) -> bool:
     """
     Test if the type is `str`.
     """
-    return issubclass(typ, str)
+    try:
+        return issubclass(typ, str)
+    except TypeError:
+        return False
 
 
 def is_envclass(instance_or_class: Any) -> bool:
