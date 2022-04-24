@@ -1,7 +1,7 @@
 import enum
 import os
 from pathlib import Path
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Optional
 
 from dataclasses import dataclass, fields, field
 from envclasses import envclass, load_env, is_enum, is_dict, InvalidNumberOfElement
@@ -208,15 +208,19 @@ def test_str():
     class Hoge:
         date: str
         text: str
+        foo: Optional[List[str]] = None
 
     h = Hoge(date='2021', text='a\nb')
     assert h.date == '2021'
     assert h.text == 'a\nb'
+    assert h.foo is None
     os.environ['DATE'] = '2022-01-01T22:00:00Z'
     os.environ['TEXT'] = 'c\nd'
+    os.environ['FOO'] = '["bar2"]'
     load_env(h, prefix='')
     assert h.date == '2022-01-01T22:00:00Z'
     assert h.text == 'c\nd'
+    assert h.foo == ['bar2']
 
 
 def test_is_enum():
