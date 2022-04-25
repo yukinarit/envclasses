@@ -3,26 +3,28 @@
 all: setup test
 
 setup:
-	pipenv install --dev
-	pipenv run pip list
+	poetry install
+	poetry run pip list
 
 test: unittest pep8 mypy
 
 unittest:
-	pipenv run pytest --doctest-modules envclasses test_envclasses.py -v
+	poetry run pytest --doctest-modules envclasses test_envclasses.py -v
 
 pep8:
-	pipenv run pytest --flake8
+	poetry run pytest --flake8
 
 mypy:
-	pipenv run mypy envclasses
+	poetry run mypy envclasses | true
 
 fmt:
 	yapf -i -r envclasses
 	isort -rc --atomic envclasses
 
 docs:
-	pipenv run pdoc -e envclasses=https://github.com/yukinarit/envclasses/envclasses/ envclasses -o docs
+	poetry run pip install pdoc
+	poetry run pdoc -e envclasses=https://github.com/yukinarit/envclasses/envclasses/ envclasses -o docs
 
 serve-docs:
-	pipenv run pdoc -e envclasses=https://github.com/yukinarit/envclasses/envclasses/ envclasses
+	poetry pip install pdoc
+	poetry run pdoc -e envclasses=https://github.com/yukinarit/envclasses/envclasses/ envclasses
