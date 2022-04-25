@@ -1,0 +1,38 @@
+[tool.poetry]
+name = "envclasses"
+version = "0.2.7"
+description = "envclasses is a library to map fields on dataclass object to environment variables"
+authors = ["Yukinari Tani <yukinarit84@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/yukinarit/envclasses"
+homepage = "https://yukinarit.github.io/envclasses/envclasses.html"
+classifiers=[
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: Implementation :: CPython",
+]
+
+[tool.poetry.dependencies]
+python = "^3.6"
+dataclasses = {version = "*", markers = "python_version < '3.7'"}
+pyyaml = "*"
+typing_inspect = ">=0.4.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "*"
+pytest-flake8 = "*"
+mypy = "*"
+yapf = "*"
+isort = "*"
+types-PyYAML = "*"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -20,9 +20,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        pip install pipenv
+        pip install poetry
         make setup
     - name: Run tests
       run: make test
-    - name: Generate docs
-      run: make docs

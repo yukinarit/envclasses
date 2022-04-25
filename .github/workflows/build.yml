@@ -20,7 +20,7 @@ jobs:
          python-version: 3.9
      - name: Install dependencies
        run: |
-         pip install pipenv
+         pip install poetry
          make setup
      - name: Get PR number
        uses: jwalton/gh-find-current-pr@v1
