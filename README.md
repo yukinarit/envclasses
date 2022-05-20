@@ -17,7 +17,7 @@ pip install envclasses
 Declare a class with `dataclass` and `envclass` decorators.
 
 ```python
-from envclasses import envclass
+from envclasses import envclass, load_env
 from dataclasses import dataclass
 
 @envclass
@@ -25,7 +25,7 @@ from dataclasses import dataclass
 class Foo:
     v: int
 
-foo = Foo(i=10)
+foo = Foo(v=10)
 load_env(foo, prefix='foo')
 print(foo)
 ```
@@ -34,12 +34,12 @@ Run the script
 
 ```
 $ python foo.py
-Foo(i=10)
+Foo(v=10)
 ```
 
 Run with environment variable
 
 ```
 $ FOO_V=100 python foo.py
-Foo(i=100)
+Foo(v=100)
 ```
