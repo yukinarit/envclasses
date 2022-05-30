@@ -132,13 +132,13 @@ class InvalidNumberOfElement(LoadEnvError):
     """
 
 
-def envclass(_cls: type) -> type:
+def envclass(_cls: T) -> T:
     """
     `envclass` decorator generates methods to loads field values from environment variables.
 
     """
     @functools.wraps(_cls)
-    def wrap(cls) -> type:
+    def wrap(cls):
         def load_env(self, _prefix: str = None) -> None:
             """
             Load attributes from environment variables.
