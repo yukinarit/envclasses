@@ -243,3 +243,51 @@ def test_is_enum():
     assert is_enum(fields(Hoge)[1].type)
     assert fields(Hoge)[0].type is SEnum
     assert fields(Hoge)[1].type is IEnum
+
+
+def test_optional():
+    class SEnum(enum.Enum):
+        s = 's'
+
+    @envclass
+    @dataclass
+    class Fuga:
+        i: Optional[int] = None
+        s: Optional[str] = None
+
+    @envclass
+    @dataclass
+    class Hoge:
+        a: Optional[str] = None
+        i: Optional[int] = None
+        lst_float: Optional[List[float]] = None
+        dct_str_float: Optional[Dict[str, float]] = None
+        tuple_two: Optional[Tuple[int, float]] = None
+        s: Optional[SEnum] = None
+        p: Optional[Path] = None
+        fuga: Optional[Fuga] = None
+
+    h = Hoge()
+    assert all(getattr(h, field.name) is None for field in fields(h))
+    os.environ.update({
+        "A": "A",
+        "I": "10",
+        "LST_FLOAT": "[3.14, 1.618, 42]",
+        "DCT_STR_FLOAT": "{van51: 42.0}",
+        "TUPLE_TWO": "[1, 2]",
+        "S": "s",
+        "P": "/dev/null",
+        "FUGA_I": "200",
+        "FUGA_S": "fugafuga"
+
+    })
+    load_env(h, prefix="")
+    assert h.a == "A"
+    assert h.i == 10
+    assert h.lst_float == [3.14, 1.618, 42.0]
+    assert h.dct_str_float == {"van51": 42.0}
+    assert h.tuple_two == (1, 2)
+    assert h.s == SEnum.s
+    assert h.p == Path("/dev/null")
+    assert h.fuga.i == 200
+    assert h.fuga.s == "fugafuga"
