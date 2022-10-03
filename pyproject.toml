@@ -22,6 +22,7 @@ classifiers=[
 [tool.poetry.dependencies]
 python = "^3.6"
 dataclasses = {version = "*", markers = "python_version < '3.7'"}
+typing-extensions = {version = "*", markers = "python_version < '3.8'"}
 pyyaml = "*"
 typing_inspect = ">=0.4.0"
 
