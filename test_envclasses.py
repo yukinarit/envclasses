@@ -202,6 +202,22 @@ def test_load_env_with_empty_prefix():
     assert h.i == 30
 
 
+def test_load_env_with_underscore_prefix():
+    @envclass
+    @dataclass
+    class Hoge:
+        i: int
+
+    h = Hoge(i=10)
+    assert h.i == 10
+    os.environ['A_I'] = '30'
+    os.environ['AB_I'] = '40'
+    load_env(h, prefix='A')
+    assert h.i == 30
+    load_env(h, prefix='AB_')
+    assert h.i == 40
+
+
 def test_str():
     @envclass
     @dataclass
