@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "envclasses"
-version = "0.3.0"
+version = "0.3.1"
 description = "envclasses is a library to map fields on dataclass object to environment variables"
 authors = ["Yukinari Tani <yukinarit84@gmail.com>"]
 license = "MIT"
