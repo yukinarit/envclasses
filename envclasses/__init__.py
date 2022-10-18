@@ -157,7 +157,7 @@ def envclass(_cls: Type[T]) -> Type[T]:
             for f in fields(cls):
                 # If no prefix specified, use the default PREFIX.
                 prefix = _prefix if _prefix is not None else ENVCLASS_PREFIX
-                prefix += '_' if prefix else ''
+                prefix += '_' if prefix and not prefix.endswith('_') else ''
                 logger.debug(f'prefix={prefix}, type={f.type}')
 
                 f_type = _coalesce(f.type)
