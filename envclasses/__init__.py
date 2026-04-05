@@ -152,12 +152,9 @@ class _FromEnvMethod(Protocol):
     def from_env(cls, prefix: str | None = None)->Self: ...
 
 if TYPE_CHECKING:
-    try:
         def envclass(_cls: type[T]) -> Any: ...
-    except ImportError:
-        def envclass(_cls:type[T])->type[T]: ...
 else:
-    def envclass(_cls: type[T]) -> type[T] & _FromEnvMethod:
+    def envclass(_cls: type[T]) -> type[T]:
         """
         `envclass` decorator generates methods to loads field values from environment variables.
 
