@@ -5,8 +5,15 @@ from typing import List, Tuple, Dict, Optional
 
 from dataclasses import dataclass, fields, field
 from envclasses import envclass, load_env, is_enum, is_dict, InvalidNumberOfElement
+import pytest
 
 basedir = Path(__file__).parent
+
+
+@pytest.fixture
+def mock_env(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("NAME", "John")
+    return
 
 
 def test_envclass_primitive():
@@ -307,3 +314,12 @@ def test_optional():
     assert h.p == Path("/dev/null")
     assert h.fuga.i == 200
     assert h.fuga.s == "fugafuga"
+
+
+def test_envclass_classmethod(mock_env):
+    @envclass
+    @dataclass
+    class A:
+        name: str
+
+    assert A.from_env("") == A("John")
