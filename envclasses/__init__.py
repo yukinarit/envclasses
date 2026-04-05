@@ -78,12 +78,15 @@ import logging
 logging.getLogger("envclasses").setLevel(logging.DEBUG)
 ```
 """
+from __future__ import annotations
 import enum
 import functools
 import logging
 import os
 from dataclasses import Field, fields
-from typing import Any, Dict, List, Optional, Type, TypeVar, Union, cast
+from typing import Any, Callable, Dict, List, Optional, Type, TypeVar, Union, cast, TYPE_CHECKING
+from annotationlib import ForwardRef
+from envclasses.utils import dict_set_attr
 
 import yaml
 from typing_inspect import get_args, get_origin, is_optional_type
@@ -98,7 +101,6 @@ __all__ = [
 
 __version__ = '0.2.7'
 """ Version of envclass. """
-
 logger = logging.getLogger('envclasses')
 
 ENVCLASS_DUNDER_FUNC_NAME = '__envclasses_load_env__'
@@ -132,72 +134,108 @@ class InvalidNumberOfElement(LoadEnvError):
     """
 
 
+def is_forward_ref(tp):
+    return isinstance(tp, ForwardRef)
+
 def _coalesce(typ: Type) -> Type:
-    if not is_optional_type(typ):
-        return typ
-    else:
+    if is_optional_type(typ):
         return cast(
             Type,
             Union[tuple(tt for tt in get_args(typ, evaluate=True) if not is_optional_type(tt))])
+    elif is_forward_ref(typ):
+        logger.debug("caught fr")
+        return ForwardRef.evaluate(cast(ForwardRef, typ)) 
+    return typ
+
+if TYPE_CHECKING:
+        def envclass(_cls: type[T]) -> Any: ...
+else:
+    def envclass(_cls: type[T]) -> type[T]:
+        """
+        `envclass` decorator generates methods to loads field values from environment variables.
+
+        """
+
+        @functools.wraps(_cls)
+        def wrap(cls):
+
+            def load_env(self, _prefix: str = None) -> None:
+                """
+                Load attributes from environment variables.
+                """
+                for f in fields(cls):
+                    # If no prefix specified, use the default PREFIX.
+                    prefix = _prefix if _prefix is not None else ENVCLASS_PREFIX
+                    prefix += '_' if prefix and not prefix.endswith('_') else ''
+
+                    f_type = _coalesce(f.type)
+                    if is_envclass(f_type):
+                        _load_dataclass(self, f, prefix, f_type, setattr)
+                    elif is_list(f_type):
+                        _load_list(self, f, prefix, f_type, setattr)
+                    elif is_tuple(f_type):
+                        _load_tuple(self, f, prefix, f_type, setattr)
+                    elif is_dict(f_type):
+                        _load_dict(self, f, prefix, f_type, setattr)
+                    elif is_enum(f_type):
+                        _load_enum(self, f, prefix, f_type, setattr)
+                    elif is_str(f_type):
+                        _load_str(self, f, prefix, f_type, setattr)
+                    else:
+                        _load_other(self, f, prefix, f_type, setattr)
+
+            @classmethod
+            def from_env(cls, _prefix: str | None = None):
+                attrs = dict()
+                for f in fields(cls):
+                    prefix = _prefix if _prefix is not None else ENVCLASS_PREFIX
+                    prefix += '_' if prefix and not prefix.endswith('_') else ''
+                    logger.debug(f'prefix={prefix}, type={f.type}')
+
+                    f_type = _coalesce(f.type)
+                    logger.debug(f'prefix={prefix}, type={f.type}, postcoalseced type = {f_type}')
+
+                    if is_envclass(f_type):
+                        _load_dataclass(attrs, f, prefix, f_type, dict_set_attr)
+                    elif is_list(f_type):
+                        _load_list(attrs, f, prefix, f_type, dict_set_attr)
+                    elif is_tuple(f_type):
+                        _load_tuple(attrs, f, prefix, f_type, dict_set_attr)
+                    elif is_dict(f_type):
+                        _load_dict(attrs, f, prefix, f_type, dict_set_attr)
+                    elif is_enum(f_type):
+                        _load_enum(attrs, f, prefix, f_type, dict_set_attr)
+                    elif is_str(f_type):
+                        _load_str(attrs, f, prefix, f_type, dict_set_attr)
+                    else:
+                        _load_other(attrs, f, prefix, f_type, dict_set_attr)
+                logger.debug(attrs)
+                return cls(**attrs)
+
+            setattr(cls, ENVCLASS_DUNDER_FUNC_NAME, load_env)
+            setattr(cls, "from_env", from_env)
+            return cls
+
+        return wrap(_cls)
 
 
-def envclass(_cls: Type[T]) -> Type[T]:
-    """
-    `envclass` decorator generates methods to loads field values from environment variables.
-
-    """
-
-    @functools.wraps(_cls)
-    def wrap(cls):
-
-        def load_env(self, _prefix: str = None) -> None:
-            """
-            Load attributes from environment variables.
-            """
-            for f in fields(cls):
-                # If no prefix specified, use the default PREFIX.
-                prefix = _prefix if _prefix is not None else ENVCLASS_PREFIX
-                prefix += '_' if prefix and not prefix.endswith('_') else ''
-                logger.debug(f'prefix={prefix}, type={f.type}')
-
-                f_type = _coalesce(f.type)
-                if is_envclass(f_type):
-                    _load_dataclass(self, f, prefix, f_type)
-                elif is_list(f_type):
-                    _load_list(self, f, prefix, f_type)
-                elif is_tuple(f_type):
-                    _load_tuple(self, f, prefix, f_type)
-                elif is_dict(f_type):
-                    _load_dict(self, f, prefix, f_type)
-                elif is_enum(f_type):
-                    _load_enum(self, f, prefix, f_type)
-                elif is_str(f_type):
-                    _load_str(self, f, prefix, f_type)
-                else:
-                    _load_other(self, f, prefix, f_type)
-
-        setattr(cls, ENVCLASS_DUNDER_FUNC_NAME, load_env)
-        return cls
-
-    return wrap(_cls)
-
-
-def _load_dataclass(obj, f: Field, prefix: str, f_type: Optional[Type] = None) -> None:
+def _load_dataclass(obj, f: Field, prefix: str, f_type: Optional[Type] = None, attr_setter: Callable[[Any, str, Any]]=setattr) -> None:
     """
     Override exisiting dataclass object by environment variables.
     """
     inner_prefix = f'{prefix}{f.name}'
+    logger.debug(inner_prefix)
     typ = f_type or f.type
     if getattr(obj, f.name, None) is None:
-        setattr(obj, f.name, typ())
-    o = getattr(obj, f.name)
+        attr_setter(obj, f.name, typ.from_env(inner_prefix))
+    o = getattr(obj, f.name, None)
     try:
         o.__envclasses_load_env__(inner_prefix)
-    except KeyError:
+    except (KeyError, AttributeError):
         pass
 
 
-def _load_list(obj, f: Field, prefix: str, f_type: Optional[Type] = None) -> None:
+def _load_list(obj, f: Field, prefix: str, f_type: Optional[Type] = None, attr_setter: Callable[[Any, str, Any]]=setattr) -> None:
     """
     Override list values by environment variables.
     """
@@ -211,10 +249,10 @@ def _load_list(obj, f: Field, prefix: str, f_type: Optional[Type] = None) -> Non
 
     yml = yaml.safe_load(s)
     lst = [element_type(e) for e in yml]
-    setattr(obj, f.name, lst)
+    attr_setter(obj, f.name, lst)
 
 
-def _load_tuple(obj, f: Field, prefix: str, f_type: Optional[Type] = None) -> None:
+def _load_tuple(obj, f: Field, prefix: str, f_type: Optional[Type] = None, attr_setter: Callable[[Any, str, Any]]=setattr) -> None:
     """
     Override tuple values by environment variables.
     """
@@ -231,10 +269,10 @@ def _load_tuple(obj, f: Field, prefix: str, f_type: Optional[Type] = None) -> No
         raise InvalidNumberOfElement(f'expected={len(element_types)} '
                                      f'actual={len(lst)}')
     tpl = tuple(element_type(e) for e, element_type in zip(lst, element_types))
-    setattr(obj, f.name, tpl)
+    attr_setter(obj, f.name, tpl)
 
 
-def _load_dict(obj, f: Field, prefix: str, f_type: Optional[Type] = None) -> None:
+def _load_dict(obj, f: Field, prefix: str, f_type: Optional[Type] = None, attr_setter: Callable[[Any, str, Any]]=setattr) -> None:
     """
     Override dict values by environment variables.
     """
@@ -248,7 +286,7 @@ def _load_dict(obj, f: Field, prefix: str, f_type: Optional[Type] = None) -> Non
         return
 
     dct = {_to_value(k, key_type): _to_value(v, value_type) for k, v in yaml.safe_load(s).items()}
-    setattr(obj, f.name, dct)
+    attr_setter(obj, f.name, dct)
 
 
 def _to_value(v: JsonValue, typ: Type) -> Any:
@@ -258,18 +296,18 @@ def _to_value(v: JsonValue, typ: Type) -> Any:
         return typ(v)
 
 
-def _load_enum(obj, f: Field, prefix: str, f_type: Optional[Type] = None) -> None:
+def _load_enum(obj, f: Field, prefix: str, f_type: Optional[Type] = None, attr_setter: Callable[[Any, str, Any]]=setattr) -> None:
     name = f'{prefix.upper()}{f.name.upper()}'
     typ = f_type or f.type
     for enum_item in list(typ):
         try:
-            setattr(obj, f.name, typ(type(enum_item.value)(os.environ[name])))
+            attr_setter(obj, f.name, typ(type(enum_item.value)(os.environ[name])))
             return
         except (KeyError, ValueError):
             continue
 
 
-def _load_str(obj, f: Field, prefix: str, f_type: Optional[Type] = None) -> None:
+def _load_str(obj, f: Field, prefix: str, f_type: Optional[Type] = None, attr_setter: Callable[[Any, str, Any]]=setattr) -> None:
     """
     Override str values by environment variables.
     """
@@ -277,12 +315,12 @@ def _load_str(obj, f: Field, prefix: str, f_type: Optional[Type] = None) -> None
     typ = f_type or f.type
     try:
         value = os.environ[name]
-        setattr(obj, f.name, _to_value(value, typ))
+        attr_setter(obj, f.name, _to_value(value, typ))
     except KeyError:
         pass
 
 
-def _load_other(obj, f: Field, prefix: str, f_type: Optional[Type] = None) -> None:
+def _load_other(obj, f: Field, prefix: str, f_type: Optional[Type] = None, attr_setter: Callable[[Any, str, Any]]=setattr) -> None:
     """
     Override values by environment variables.
     """
@@ -290,7 +328,7 @@ def _load_other(obj, f: Field, prefix: str, f_type: Optional[Type] = None) -> No
     typ = f_type or f.type
     try:
         yml = yaml.safe_load(os.environ[name])
-        setattr(obj, f.name, _to_value(yml, typ))
+        attr_setter(obj, f.name, _to_value(yml, typ))
     except KeyError:
         pass
 
