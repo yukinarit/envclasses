@@ -317,9 +317,11 @@ def test_optional():
 
 
 def test_envclass_classmethod(mock_env):
+
     @envclass
     @dataclass
     class A:
         name: str
 
-    assert A.from_env("") == A("John")
+    A_fromenv: A = A.from_env("")
+    assert A_fromenv == A("John")
