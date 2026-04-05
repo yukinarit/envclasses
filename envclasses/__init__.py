@@ -147,10 +147,6 @@ def _coalesce(typ: Type) -> Type:
         return ForwardRef.evaluate(cast(ForwardRef, typ)) 
     return typ
 
-class _FromEnvMethod(Protocol):
-    @classmethod
-    def from_env(cls, prefix: str | None = None)->Self: ...
-
 if TYPE_CHECKING:
         def envclass(_cls: type[T]) -> Any: ...
 else:
