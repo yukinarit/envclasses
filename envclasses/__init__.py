@@ -84,7 +84,7 @@ import functools
 import logging
 import os
 from dataclasses import Field, fields
-from typing import Any, Callable, Dict, List, Optional, Type, TypeVar, Union, cast, Protocol, Self, TYPE_CHECKING
+from typing import Any, Callable, Dict, List, Optional, Type, TypeVar, Union, cast, TYPE_CHECKING
 from annotationlib import ForwardRef
 from envclasses.utils import dict_set_attr
 
