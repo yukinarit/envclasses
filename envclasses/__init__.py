@@ -78,12 +78,13 @@ import logging
 logging.getLogger("envclasses").setLevel(logging.DEBUG)
 ```
 """
+from __future__ import annotations
 import enum
 import functools
 import logging
 import os
 from dataclasses import Field, fields
-from typing import Any, Callable, Dict, List, Optional, Type, TypeVar, Union, cast
+from typing import Any, Callable, Dict, List, Optional, Type, TypeVar, Union, cast, Protocol, Self, TYPE_CHECKING
 from annotationlib import ForwardRef
 from envclasses.utils import dict_set_attr
 
@@ -146,75 +147,83 @@ def _coalesce(typ: Type) -> Type:
         return ForwardRef.evaluate(cast(ForwardRef, typ)) 
     return typ
 
+class _FromEnvMethod(Protocol):
+    @classmethod
+    def from_env(cls, prefix: str | None = None)->Self: ...
 
+if TYPE_CHECKING:
+    try:
+        def envclass(_cls: type[T]) -> Any: ...
+    except ImportError:
+        def envclass(_cls:type[T])->type[T]: ...
+else:
+    def envclass(_cls: type[T]) -> type[T] & _FromEnvMethod:
+        """
+        `envclass` decorator generates methods to loads field values from environment variables.
 
-def envclass(_cls: Type[T]) -> Type[T]:
-    """
-    `envclass` decorator generates methods to loads field values from environment variables.
+        """
 
-    """
+        @functools.wraps(_cls)
+        def wrap(cls):
 
-    @functools.wraps(_cls)
-    def wrap(cls):
+            def load_env(self, _prefix: str = None) -> None:
+                """
+                Load attributes from environment variables.
+                """
+                for f in fields(cls):
+                    # If no prefix specified, use the default PREFIX.
+                    prefix = _prefix if _prefix is not None else ENVCLASS_PREFIX
+                    prefix += '_' if prefix and not prefix.endswith('_') else ''
 
-        def load_env(self, _prefix: str = None) -> None:
-            """
-            Load attributes from environment variables.
-            """
-            for f in fields(cls):
-                # If no prefix specified, use the default PREFIX.
-                prefix = _prefix if _prefix is not None else ENVCLASS_PREFIX
-                prefix += '_' if prefix and not prefix.endswith('_') else ''
+                    f_type = _coalesce(f.type)
+                    if is_envclass(f_type):
+                        _load_dataclass(self, f, prefix, f_type, setattr)
+                    elif is_list(f_type):
+                        _load_list(self, f, prefix, f_type, setattr)
+                    elif is_tuple(f_type):
+                        _load_tuple(self, f, prefix, f_type, setattr)
+                    elif is_dict(f_type):
+                        _load_dict(self, f, prefix, f_type, setattr)
+                    elif is_enum(f_type):
+                        _load_enum(self, f, prefix, f_type, setattr)
+                    elif is_str(f_type):
+                        _load_str(self, f, prefix, f_type, setattr)
+                    else:
+                        _load_other(self, f, prefix, f_type, setattr)
 
-                f_type = _coalesce(f.type)
-                if is_envclass(f_type):
-                    _load_dataclass(self, f, prefix, f_type, setattr)
-                elif is_list(f_type):
-                    _load_list(self, f, prefix, f_type, setattr)
-                elif is_tuple(f_type):
-                    _load_tuple(self, f, prefix, f_type, setattr)
-                elif is_dict(f_type):
-                    _load_dict(self, f, prefix, f_type, setattr)
-                elif is_enum(f_type):
-                    _load_enum(self, f, prefix, f_type, setattr)
-                elif is_str(f_type):
-                    _load_str(self, f, prefix, f_type, setattr)
-                else:
-                    _load_other(self, f, prefix, f_type, setattr)
+            @classmethod
+            def from_env(cls, _prefix: str | None = None):
+                attrs = dict()
+                for f in fields(cls):
+                    prefix = _prefix if _prefix is not None else ENVCLASS_PREFIX
+                    prefix += '_' if prefix and not prefix.endswith('_') else ''
+                    logger.debug(f'prefix={prefix}, type={f.type}')
 
-        @classmethod
-        def from_env(cls, _prefix: str = None)->T:
-            attrs = dict()
-            for f in fields(cls):
-                prefix = _prefix if _prefix is not None else ENVCLASS_PREFIX
-                prefix += '_' if prefix and not prefix.endswith('_') else ''
-                logger.debug(f'prefix={prefix}, type={f.type}')
+                    f_type = _coalesce(f.type)
+                    logger.debug(f'prefix={prefix}, type={f.type}, postcoalseced type = {f_type}')
 
-                f_type = _coalesce(f.type)
-                logger.debug(f'prefix={prefix}, type={f.type}, postcoalseced type = {f_type}')
+                    if is_envclass(f_type):
+                        _load_dataclass(attrs, f, prefix, f_type, dict_set_attr)
+                    elif is_list(f_type):
+                        _load_list(attrs, f, prefix, f_type, dict_set_attr)
+                    elif is_tuple(f_type):
+                        _load_tuple(attrs, f, prefix, f_type, dict_set_attr)
+                    elif is_dict(f_type):
+                        _load_dict(attrs, f, prefix, f_type, dict_set_attr)
+                    elif is_enum(f_type):
+                        _load_enum(attrs, f, prefix, f_type, dict_set_attr)
+                    elif is_str(f_type):
+                        _load_str(attrs, f, prefix, f_type, dict_set_attr)
+                    else:
+                        _load_other(attrs, f, prefix, f_type, dict_set_attr)
+                logger.debug(attrs)
+                return cls(**attrs)
 
-                if is_envclass(f_type):
-                    _load_dataclass(attrs, f, prefix, f_type, dict_set_attr)
-                elif is_list(f_type):
-                    _load_list(attrs, f, prefix, f_type, dict_set_attr)
-                elif is_tuple(f_type):
-                    _load_tuple(attrs, f, prefix, f_type, dict_set_attr)
-                elif is_dict(f_type):
-                    _load_dict(attrs, f, prefix, f_type, dict_set_attr)
-                elif is_enum(f_type):
-                    _load_enum(attrs, f, prefix, f_type, dict_set_attr)
-                elif is_str(f_type):
-                    _load_str(attrs, f, prefix, f_type, dict_set_attr)
-                else:
-                    _load_other(attrs, f, prefix, f_type, dict_set_attr)
-            logger.debug(attrs)
-            return cls(**attrs)
+            setattr(cls, ENVCLASS_DUNDER_FUNC_NAME, load_env)
+            setattr(cls, "from_env", from_env)
+            return cls
 
-        setattr(cls, ENVCLASS_DUNDER_FUNC_NAME, load_env)
-        setattr(cls, "from_env", from_env)
-        return cls
-
-    return wrap(_cls)
+        return wrap(_cls)
 
 
 def _load_dataclass(obj, f: Field, prefix: str, f_type: Optional[Type] = None, attr_setter: Callable[[Any, str, Any]]=setattr) -> None:
