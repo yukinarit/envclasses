@@ -1,4 +1,4 @@
-.PHONY: all setup test unittest pep8 mypy docs
+.PHONY: all setup test unittest lint typecheck docs
 
 all: setup test
 
@@ -6,20 +6,21 @@ setup:
 	poetry install
 	poetry run pip list
 
-test: unittest pep8 mypy
+test: unittest lint typecheck
 
 unittest:
 	poetry run pytest --doctest-modules envclasses test_envclasses.py -v
 
-pep8:
-	poetry run pytest --flake8
+lint:
+	poetry run ruff check envclasses
+	poetry run ruff format --check envclasses
 
-mypy:
-	poetry run mypy envclasses | true
+typecheck:
+	poetry run ty check envclasses
 
 fmt:
-	yapf -i -r envclasses
-	isort -rc --atomic envclasses
+	poetry run ruff format envclasses
+	poetry run ruff check --fix envclasses
 
 docs:
 	poetry run pip install pdoc
