@@ -3,29 +3,29 @@
 all: setup test
 
 setup:
-	poetry install
-	poetry run pip list
+	uv sync
+	uv run pip list
 
 test: unittest lint typecheck
 
 unittest:
-	poetry run pytest --doctest-modules envclasses test_envclasses.py -v
+	uv run pytest --doctest-modules envclasses test_envclasses.py -v
 
 lint:
-	poetry run ruff check envclasses
-	poetry run ruff format --check envclasses
+	uv run ruff check envclasses
+	uv run ruff format --check envclasses
 
 typecheck:
-	poetry run ty check envclasses
+	uv run ty check envclasses
 
 fmt:
-	poetry run ruff format envclasses
-	poetry run ruff check --fix envclasses
+	uv run ruff format envclasses
+	uv run ruff check --fix envclasses
 
 docs:
-	poetry run pip install pdoc
-	poetry run pdoc -e envclasses=https://github.com/yukinarit/envclasses/envclasses/ envclasses -o docs
+	uv run pip install pdoc
+	uv run pdoc -e envclasses=https://github.com/yukinarit/envclasses/envclasses/ envclasses -o docs
 
 serve-docs:
-	poetry pip install pdoc
-	poetry run pdoc -e envclasses=https://github.com/yukinarit/envclasses/envclasses/ envclasses
+	uv run pip install pdoc
+	uv run pdoc -e envclasses=https://github.com/yukinarit/envclasses/envclasses/ envclasses

@@ -78,6 +78,7 @@ import logging
 logging.getLogger("envclasses").setLevel(logging.DEBUG)
 ```
 """
+
 import enum
 import functools
 import logging
@@ -89,27 +90,27 @@ import yaml
 from typing_inspect import get_args, get_origin, is_optional_type
 
 __all__ = [
-    'envclass',
-    'is_envclass',
-    'load_env',
-    'EnvclassError',
-    'LoadEnvError',
+    "envclass",
+    "is_envclass",
+    "load_env",
+    "EnvclassError",
+    "LoadEnvError",
 ]
 
-__version__ = '0.2.7'
+__version__ = "0.2.7"
 """ Version of envclass. """
 
-logger = logging.getLogger('envclasses')
+logger = logging.getLogger("envclasses")
 
-ENVCLASS_DUNDER_FUNC_NAME = '__envclasses_load_env__'
+ENVCLASS_DUNDER_FUNC_NAME = "__envclasses_load_env__"
 """ Name of the generated dunder function to be called by `load_env`. """
 
-ENVCLASS_PREFIX = 'env'
+ENVCLASS_PREFIX = "env"
 """ Default prefix used for environment variables. """
 
-T = TypeVar('T')
+T = TypeVar("T")
 
-JsonValue = TypeVar('JsonValue', str, int, float, bool, Dict, List)
+JsonValue = TypeVar("JsonValue", str, int, float, bool, Dict, List)
 
 
 class EnvclassError(TypeError):
@@ -138,7 +139,8 @@ def _coalesce(typ: Type) -> Type:
     else:
         return cast(
             Type,
-            Union[tuple(tt for tt in get_args(typ, evaluate=True) if not is_optional_type(tt))])
+            Union[tuple(tt for tt in get_args(typ, evaluate=True) if not is_optional_type(tt))],
+        )
 
 
 def envclass(_cls: Type[T]) -> Type[T]:
@@ -157,8 +159,8 @@ def envclass(_cls: Type[T]) -> Type[T]:
             for f in fields(cls):
                 # If no prefix specified, use the default PREFIX.
                 prefix = _prefix if _prefix is not None else ENVCLASS_PREFIX
-                prefix += '_' if prefix and not prefix.endswith('_') else ''
-                logger.debug(f'prefix={prefix}, type={f.type}')
+                prefix += "_" if prefix and not prefix.endswith("_") else ""
+                logger.debug(f"prefix={prefix}, type={f.type}")
 
                 f_type = _coalesce(f.type)
                 if is_envclass(f_type):
@@ -186,7 +188,7 @@ def _load_dataclass(obj, f: Field, prefix: str, f_type: Optional[Type] = None) -
     """
     Override exisiting dataclass object by environment variables.
     """
-    inner_prefix = f'{prefix}{f.name}'
+    inner_prefix = f"{prefix}{f.name}"
     typ = f_type or f.type
     if getattr(obj, f.name, None) is None:
         setattr(obj, f.name, typ())
@@ -203,7 +205,7 @@ def _load_list(obj, f: Field, prefix: str, f_type: Optional[Type] = None) -> Non
     """
     typ = f_type or f.type
     element_type = typ.__args__[0]
-    name = f'{prefix.upper()}{f.name.upper()}'
+    name = f"{prefix.upper()}{f.name.upper()}"
     try:
         s: str = os.environ[name].strip()
     except KeyError:
@@ -219,7 +221,7 @@ def _load_tuple(obj, f: Field, prefix: str, f_type: Optional[Type] = None) -> No
     Override tuple values by environment variables.
     """
     typ = f_type or f.type
-    name = f'{prefix.upper()}{f.name.upper()}'
+    name = f"{prefix.upper()}{f.name.upper()}"
     element_types = typ.__args__
     try:
         s: str = os.environ[name].strip()
@@ -228,8 +230,7 @@ def _load_tuple(obj, f: Field, prefix: str, f_type: Optional[Type] = None) -> No
 
     lst = yaml.safe_load(s)
     if len(lst) != len(element_types):
-        raise InvalidNumberOfElement(f'expected={len(element_types)} '
-                                     f'actual={len(lst)}')
+        raise InvalidNumberOfElement(f"expected={len(element_types)} actual={len(lst)}")
     tpl = tuple(element_type(e) for e, element_type in zip(lst, element_types))
     setattr(obj, f.name, tpl)
 
@@ -239,7 +240,7 @@ def _load_dict(obj, f: Field, prefix: str, f_type: Optional[Type] = None) -> Non
     Override dict values by environment variables.
     """
     typ = f_type or f.type
-    name = f'{prefix.upper()}{f.name.upper()}'
+    name = f"{prefix.upper()}{f.name.upper()}"
     key_type = typ.__args__[0]
     value_type = typ.__args__[1]
     try:
@@ -259,7 +260,7 @@ def _to_value(v: JsonValue, typ: Type) -> Any:
 
 
 def _load_enum(obj, f: Field, prefix: str, f_type: Optional[Type] = None) -> None:
-    name = f'{prefix.upper()}{f.name.upper()}'
+    name = f"{prefix.upper()}{f.name.upper()}"
     typ = f_type or f.type
     for enum_item in list(typ):
         try:
@@ -273,7 +274,7 @@ def _load_str(obj, f: Field, prefix: str, f_type: Optional[Type] = None) -> None
     """
     Override str values by environment variables.
     """
-    name = f'{prefix.upper()}{f.name.upper()}'
+    name = f"{prefix.upper()}{f.name.upper()}"
     typ = f_type or f.type
     try:
         value = os.environ[name]
@@ -286,7 +287,7 @@ def _load_other(obj, f: Field, prefix: str, f_type: Optional[Type] = None) -> No
     """
     Override values by environment variables.
     """
-    name = f'{prefix.upper()}{f.name.upper()}'
+    name = f"{prefix.upper()}{f.name.upper()}"
     typ = f_type or f.type
     try:
         yml = yaml.safe_load(os.environ[name])
