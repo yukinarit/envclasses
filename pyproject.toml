@@ -11,28 +11,31 @@ classifiers=[
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3.6",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Programming Language :: Python :: Implementation :: CPython",
 ]
 
 [tool.poetry.dependencies]
-python = "^3.6"
-dataclasses = {version = "*", markers = "python_version < '3.7'"}
-typing-extensions = {version = "*", markers = "python_version < '3.8'"}
+python = "^3.9"
 pyyaml = "*"
 typing_inspect = ">=0.4.0"
 
 [tool.poetry.dev-dependencies]
-pytest = "*"
-pytest-flake8 = "*"
-mypy = "*"
-yapf = "*"
-isort = "*"
-types-PyYAML = "*"
+pytest = "^8.0"
+ruff = "0.15.10"
+ty = "0.0.29"
+
+[tool.ruff]
+target-version = "py39"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
