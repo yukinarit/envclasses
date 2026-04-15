@@ -97,9 +97,6 @@ __all__ = [
     "LoadEnvError",
 ]
 
-__version__ = "0.2.7"
-""" Version of envclass. """
-
 logger = logging.getLogger("envclasses")
 
 ENVCLASS_DUNDER_FUNC_NAME = "__envclasses_load_env__"
